@@ -1,6 +1,4 @@
-package io.tronbot
-
-import java.util.stream.Stream
+package io.tronbot.dc.server
 
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -13,8 +11,10 @@ import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient
 import org.springframework.cloud.context.config.annotation.RefreshScope
+import org.springframework.cloud.netflix.feign.EnableFeignClients
 import org.springframework.cloud.stream.annotation.EnableBinding
 import org.springframework.cloud.stream.messaging.Sink
+import org.springframework.context.annotation.ComponentScan
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.rest.core.annotation.RepositoryRestResource
 import org.springframework.integration.annotation.MessageEndpoint
@@ -28,17 +28,13 @@ import groovy.util.logging.Log4j
 @EnableBinding(Sink.class)
 @EnableDiscoveryClient
 @SpringBootApplication
-class ReservationServiceApplication {
+@EnableFeignClients
+class DataConciergeServerApp {
 
 	static void main(String[] args) {
-		SpringApplication.run(ReservationServiceApplication, args)
+		SpringApplication.run(DataConciergeServerApp, args)
 	}
 }
-
-//interface ReservationChannels{
-//	@Input
-//	SubscribableChannel input()
-//}
 
 @MessageEndpoint
 class ReservationProcessor{
@@ -53,6 +49,9 @@ class ReservationProcessor{
 		this.reservationRepository.save(new Reservation(reservationName))
 	}
 }
+
+
+
 
 @RestController
 @RefreshScope
@@ -111,8 +110,17 @@ class SampleDataCLR implements CommandLineRunner{
 
 	@Override
 	public void run(String... args) throws Exception {
-		Stream.of('Josh', 'Juergen','Andrew','Bridget','Onsi','Phil', 'Stephane', 'Cornelia')
-				.forEach{x -> reservationRepository.save(new Reservation(x))}
+		[
+			'Josh',
+			'Juergen',
+			'Andrew',
+			'Bridget',
+			'Onsi',
+			'Phil',
+			'Stephane',
+			'Cornelia'
+		]
+		.forEach{x -> reservationRepository.save(new Reservation(x))}
 		reservationRepository.findAll().forEach{ x -> System.out.&println }
 	}
 }
