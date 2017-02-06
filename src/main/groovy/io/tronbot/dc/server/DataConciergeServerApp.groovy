@@ -2,33 +2,31 @@ package io.tronbot.dc.server
 
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
+import javax.persistence.GenerationType
 import javax.persistence.Id
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.cache.annotation.EnableCaching
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient
-import org.springframework.cloud.context.config.annotation.RefreshScope
 import org.springframework.cloud.netflix.feign.EnableFeignClients
 import org.springframework.cloud.stream.annotation.EnableBinding
 import org.springframework.cloud.stream.messaging.Sink
-import org.springframework.context.annotation.ComponentScan
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.rest.core.annotation.RepositoryRestResource
 import org.springframework.integration.annotation.MessageEndpoint
 import org.springframework.integration.annotation.ServiceActivator
 import org.springframework.stereotype.Component
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RestController
 
 import groovy.util.logging.Log4j
 
+@SpringBootApplication
 @EnableBinding(Sink.class)
 @EnableDiscoveryClient
-@SpringBootApplication
 @EnableFeignClients
+@EnableCaching
 class DataConciergeServerApp {
 
 	static void main(String[] args) {
@@ -53,26 +51,10 @@ class ReservationProcessor{
 
 
 
-@RestController
-@RefreshScope
-class GreetingRestController{
-	private final String value
-
-	@Autowired
-	public GreetingRestController(@Value('${message}') String value) {
-		this.value=value
-	}
-
-	@GetMapping('/message')
-	public String greet(){
-		return this.value
-	}
-}
-
 @Entity
 class Reservation {
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id
 
 	private String reservationName
