@@ -1,4 +1,4 @@
-package io.tronbot.dc.server
+package io.tronbot.dc
 
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.cache.annotation.EnableCaching
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient
 import org.springframework.cloud.netflix.feign.EnableFeignClients
 import org.springframework.cloud.stream.annotation.EnableBinding
@@ -26,11 +25,10 @@ import groovy.util.logging.Log4j
 @EnableBinding(Sink.class)
 @EnableDiscoveryClient
 @EnableFeignClients
-@EnableCaching
-class DataConciergeServerApp {
+class DataConciergeApp {
 
 	static void main(String[] args) {
-		SpringApplication.run(DataConciergeServerApp, args)
+		SpringApplication.run(DataConciergeApp, args)
 	}
 }
 
