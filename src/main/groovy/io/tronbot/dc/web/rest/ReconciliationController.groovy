@@ -20,11 +20,16 @@ import groovy.util.logging.Log4j
 @RefreshScope
 @Log4j
 class ReconciliationController {
+	private final ReconciliationService service
+
+	ReconciliationController(ReconciliationService service){
+		this.service = service
+	}
 
 	@GetMapping('/business')
 	@ResponseBody
 	public ResponseEntity business(@RequestParam('q') String keywords){
-//		def res = service.queryBusiness(keywords)
-		return ResponseEntity.ok("asdfasdf")
+		def res = service.queryBusiness(keywords)
+		return ResponseEntity.ok(res)
 	}
 }

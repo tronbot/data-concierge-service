@@ -1,1 +1,0 @@
-INSERT INTO user (id, username, password, email) VALUES (1, 'bhdrkn', '1q2w3e', 'bhdrkn[at]gmail.com');
