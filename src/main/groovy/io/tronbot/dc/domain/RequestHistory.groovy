@@ -24,12 +24,15 @@ public class RequestHistory{
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	Long id
-	@Column(length = 2048, nullable = false)
+	@Column(length = 1024, nullable = false)
 	String requestURL
 	@Column(columnDefinition = 'text', nullable = false)
 	String response
+	String status
 	@Column(nullable = false)
 	Date timestamp
+
+
 
 	public RequestHistory(String requestURL, String response) {
 		super()
