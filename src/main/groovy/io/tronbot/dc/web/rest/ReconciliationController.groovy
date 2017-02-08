@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 
 import groovy.util.logging.Log4j
-import io.tronbot.dc.service.ReconciliationService
 
 /**
  * @author <a href='mailto:juanyong.zhang@gmail.com'>Juanyong Zhang</a> 
@@ -21,16 +20,11 @@ import io.tronbot.dc.service.ReconciliationService
 @RefreshScope
 @Log4j
 class ReconciliationController {
-	private final ReconciliationService service
-
-	ReconciliationController(ReconciliationService service){
-		this.service=service
-	}
 
 	@GetMapping('/business')
 	@ResponseBody
 	public ResponseEntity business(@RequestParam('q') String keywords){
-		def res = service.queryBusiness(keywords)
-		return ResponseEntity.ok(res)
+//		def res = service.queryBusiness(keywords)
+		return ResponseEntity.ok("asdfasdf")
 	}
 }

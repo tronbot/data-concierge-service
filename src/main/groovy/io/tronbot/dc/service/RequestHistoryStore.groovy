@@ -7,8 +7,8 @@ import org.springframework.transaction.annotation.Transactional
 import com.hazelcast.core.MapStoreAdapter
 
 import groovy.util.logging.Log4j
+import io.tronbot.dc.dao.RequestHistoryRepository
 import io.tronbot.dc.domain.RequestHistory
-import io.tronbot.dc.repository.RequestHistoryRepository
 
 /**
  * @author <a href="mailto:juanyong.zhang@gmail.com">Juanyong Zhang</a> 
