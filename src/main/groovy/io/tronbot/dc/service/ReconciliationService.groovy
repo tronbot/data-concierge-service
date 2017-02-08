@@ -1,4 +1,4 @@
-package io.tronbot.dc.web.rest
+package io.tronbot.dc.service
 
 import org.springframework.stereotype.Service
 
