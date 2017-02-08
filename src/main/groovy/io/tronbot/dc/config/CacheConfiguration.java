@@ -19,9 +19,7 @@ import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MaxSizeConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.MapStore;
 
-import io.tronbot.dc.domain.User;
 import io.tronbot.dc.service.RequestHistoryStore;
 
 @Configuration
@@ -40,8 +38,7 @@ public class CacheConfiguration {
 
 	@Bean
 	@Autowired
-	public HazelcastInstance getHazelcastInstance(MapStore<String, User> userMapStore,
-			RequestHistoryStore requestHistoryStore) {
+	public HazelcastInstance getHazelcastInstance(RequestHistoryStore requestHistoryStore) {
 		log.debug("Configuring Hazelcast");
 		Config config = new Config();
 		// The serviceId is by default the application's name, see Spring Boot's

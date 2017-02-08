@@ -17,29 +17,30 @@ import io.tronbot.dc.domain.RequestHistory
 @Service
 @Transactional
 @Log4j
-public class RequestHistoryStore extends MapStoreAdapter<String, RequestHistory> {
+public class RequestHistoryStore extends MapStoreAdapter<String, String> {
 	@Autowired
 	private RequestHistoryRepository repository
 
 	@Override
-	public RequestHistory load(String key) {
-		return repository.findOne(key)
+	public String load(String key) {
+		RequestHistory reqHis = repository.findByRequestURL(key)
+		return reqHis?.getResponse() 
 	}
-
 
 	@Override
 	public Iterable<String> loadAllKeys() {
-		return null
+		return repository.findAllRequestURLs()
 	}
 
 	@Override
-	public void store(String key, RequestHistory value) {
-		repository.save(value)
+	public void store(String key, String value) {
+		RequestHistory his = new RequestHistory(key, value);
+		repository.save(his)
 	}
 
 
 	@Override
 	public void delete(String key) {
-		repository.delete(key)
+		repository.deleteByRequestURL(key)
 	}
 }

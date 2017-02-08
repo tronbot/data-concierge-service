@@ -19,9 +19,9 @@ public interface GooglePlacesClient {
 
 	@Cacheable('persistableCache')
 	@GetMapping('textsearch/json?query={keywords}&key=${google.places.api.key}')
-	Map query(@PathVariable('keywords') String keywords);
+	String query(@PathVariable('keywords') String keywords);
 
 	@Cacheable('persistableCache')
 	@GetMapping('details/json?placeid=${place_id}&key=${google.places.api.key}')
-	Map detail(@PathVariable('place_id') String placeId);
+	String detail(@PathVariable('place_id') String placeId);
 }
