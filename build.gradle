@@ -48,6 +48,13 @@ dependencies {
 	
 	compile("org.codehaus.groovy:groovy")
 	
+	compile("com.fasterxml.jackson.datatype:jackson-datatype-json-org")
+    compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    compile("com.fasterxml.jackson.datatype:jackson-datatype-hibernate5")
+    compile("com.fasterxml.jackson.core:jackson-annotations")
+    compile("com.fasterxml.jackson.core:jackson-databind")
+	
+	
 	compile("com.hazelcast:hazelcast")
     compile("com.hazelcast:hazelcast-spring")
     compile("com.hazelcast:hazelcast-hibernate5:1.2")
