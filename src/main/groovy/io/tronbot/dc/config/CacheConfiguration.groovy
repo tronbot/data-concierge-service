@@ -1,21 +1,15 @@
 package io.tronbot.dc.config
 
-import java.lang.reflect.Method
 import java.nio.file.Paths
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.annotation.EnableCaching
-import org.springframework.cache.interceptor.KeyGenerator
-import org.springframework.cache.interceptor.SimpleKeyGenerator
 import org.springframework.cloud.client.ServiceInstance
 import org.springframework.cloud.client.discovery.DiscoveryClient
 import org.springframework.cloud.client.serviceregistry.Registration
-import org.springframework.cloud.netflix.feign.FeignClient
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.core.annotation.AnnotatedElementUtils
 import org.springframework.core.env.Environment
-import org.springframework.web.bind.annotation.RequestMapping
 
 import com.hazelcast.config.Config
 import com.hazelcast.config.EvictionPolicy
@@ -41,28 +35,6 @@ public class CacheConfiguration {
 	@Autowired
 	private RequestHistoryStore store
 
-	@Bean
-	public KeyGenerator feignCacheKeyGenerator() {
-		KeyGenerator keyGen = new KeyGenerator() {
-					@Override
-					public Object generate(Object target, Method method, Object... params) {
-						StringBuilder sb = new StringBuilder()
-						Class<?> targetType = target.getClass()
-						//get url parts from feign client annotation on the class
-						FeignClient feignClientAnnotation= org.springframework.core.annotation.AnnotatedElementUtils.findMergedAnnotation(targetType,
-								FeignClient.class)
-						sb.append(feignClientAnnotation?.url())
-						//get url parts from request mapping annotation on the method
-						RequestMapping requestMappingAnnotation = org.springframework.core.annotation.AnnotatedElementUtils.findMergedAnnotation(method,
-								RequestMapping.class)
-						sb.append(requestMappingAnnotation?.value()[0])
-						//get url parts from method args
-						sb.append(SimpleKeyGenerator.generateKey(params))
-						return sb.toString()
-					}
-				}
-		return keyGen
-	}
 
 	@Bean
 	@Autowired

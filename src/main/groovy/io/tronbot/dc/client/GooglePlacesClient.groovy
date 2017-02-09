@@ -17,10 +17,10 @@ import io.tronbot.dc.config.GooglePlacesFeignConfiguration
 public interface GooglePlacesClient {
 
 	@Cacheable(value='persistableCache', keyGenerator='feignCacheKeyGenerator')
-	@GetMapping('textsearch/json?query={keywords}&key=${google.places.api.key}')
+	@GetMapping(value='textsearch/json?query={keywords}&key=${google.places.api.key}', produces='application/json')
 	String query(@PathVariable('keywords') String keywords);
 
 	@Cacheable(value='persistableCache', keyGenerator='feignCacheKeyGenerator')
-	@GetMapping('details/json?placeid=${place_id}&key=${google.places.api.key}')
+	@GetMapping(value='details/json?placeid=${place_id}&key=${google.places.api.key}', produces='application/json')
 	String detail(@PathVariable('place_id') String placeId);
 }

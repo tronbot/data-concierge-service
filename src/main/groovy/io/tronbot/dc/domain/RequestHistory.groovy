@@ -31,9 +31,10 @@ public class RequestHistory{
 	String status
 	@Column(nullable = false)
 	Date timestamp
-
-
-
+	
+	public RequestHistory(){
+		//why JPA!!!
+	}
 	public RequestHistory(String requestURL, String response) {
 		super()
 		this.requestURL = requestURL
