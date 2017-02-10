@@ -23,10 +23,13 @@ class FeignCacheKeyGenerator implements KeyGenerator{
 	@Autowired
 	private ConfigurablePropertyResolver propertyResolver
 
+
+	/**
+	 * CURRENT : GET - https://maps.googleapis.com/maps/api/place/textsearch/json?key=KEY&query=XYZ
+	 * TODO : user CURL command line for : http://stackoverflow.com/questions/14978411/http-post-and-get-using-curl-in-linux
+	 */
 	@Override
 	public Object generate(Object target, Method method, Object... params) {
-		// example: GET - https://maps.googleapis.com/maps/api/place/textsearch/json?key=KEY&query=XYZ
-		//		List<MethodMetadata> methodMetadataLst = contract.parseAndValidatateMetadata();
 		Class<?> targetType = target.getClass()
 		//get url parts from feign client annotation on the class
 		FeignClient clzFeign= findMergedAnnotation(targetType,

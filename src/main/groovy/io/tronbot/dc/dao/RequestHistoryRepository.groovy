@@ -11,10 +11,10 @@ import io.tronbot.dc.domain.RequestHistory
  * @date Feb 6, 2017
  */
 interface RequestHistoryRepository extends JpaRepository<RequestHistory, Long>{
-	@Query('SELECT req.requestURL FROM RequestHistory req')
-	Set<String> findAllRequestURLs()
+	@Query('SELECT req.request FROM RequestHistory req')
+	Set<String> findAllRequests()
 	
-	RequestHistory findByRequestURL(final String requestURL);
+	RequestHistory findByRequest(final String request);
 	
-	void deleteByRequestURL(String requestURL);
+	void deleteByRequest(String request);
 }

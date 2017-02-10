@@ -2,7 +2,6 @@ package io.tronbot.dc.service
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 
 import com.hazelcast.core.MapStoreAdapter
 
@@ -15,21 +14,22 @@ import io.tronbot.dc.domain.RequestHistory
  * @date Feb 6, 2017
  */
 @Service
-@Transactional
 @Log4j
 public class RequestHistoryStore extends MapStoreAdapter<String, String> {
 	@Autowired
 	private RequestHistoryRepository repository
+	//	@Autowired
+	//	private RequestHistoryWriter writer
 
 	@Override
 	public String load(String key) {
-		RequestHistory reqHis = repository.findByRequestURL(key)
-		return reqHis?.getResponse() 
+		RequestHistory reqHis = repository.findByRequest(key)
+		return reqHis?.getResponse()
 	}
 
 	@Override
 	public Iterable<String> loadAllKeys() {
-		return repository.findAllRequestURLs()
+		return repository.findAllRequests()
 	}
 
 	@Override
@@ -41,6 +41,6 @@ public class RequestHistoryStore extends MapStoreAdapter<String, String> {
 
 	@Override
 	public void delete(String key) {
-		repository.deleteByRequestURL(key)
+		repository.deleteByRequest(key)
 	}
 }

@@ -16,7 +16,7 @@ import javax.persistence.Table
  */
 @Entity
 @Access(AccessType.FIELD)
-@Table(indexes = [@Index(name = 'REQURL_IDX', columnList = 'requestURL')])
+@Table(indexes = [@Index(name = 'REQURL_IDX', columnList = 'request')])
 public class RequestHistory{
 
 
@@ -25,7 +25,7 @@ public class RequestHistory{
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	Long id
 	@Column(length = 1024, nullable = false)
-	String requestURL
+	String request
 	@Column(columnDefinition = 'text', nullable = false)
 	String response
 	String status
@@ -35,9 +35,9 @@ public class RequestHistory{
 	public RequestHistory(){
 		//why JPA!!!
 	}
-	public RequestHistory(String requestURL, String response) {
+	public RequestHistory(String request, String response) {
 		super()
-		this.requestURL = requestURL
+		this.request = request
 		this.response = response
 		this.timestamp = new Date()
 	}

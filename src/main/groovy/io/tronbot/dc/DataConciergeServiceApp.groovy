@@ -10,7 +10,6 @@ import org.springframework.cloud.stream.messaging.Processor
 @SpringBootApplication
 @EnableFeignClients
 @EnableDiscoveryClient
-@EnableBinding(Processor.class)
 public class DataConciergeServiceApp {
 
 	public static void main(String[] args) {
