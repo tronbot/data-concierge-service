@@ -10,15 +10,18 @@ import org.springframework.cloud.client.serviceregistry.Registration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.env.Environment
+import org.springframework.http.ResponseEntity
 
 import com.hazelcast.config.Config
 import com.hazelcast.config.EvictionPolicy
 import com.hazelcast.config.MapConfig
 import com.hazelcast.config.MaxSizeConfig
+import com.hazelcast.config.SerializerConfig
 import com.hazelcast.core.Hazelcast
 import com.hazelcast.core.HazelcastInstance
 
 import groovy.util.logging.Log4j
+import io.tronbot.dc.cache.ResponseEntityStreamSerializer
 import io.tronbot.dc.service.RequestHistoryStore
 
 @Configuration
@@ -34,11 +37,12 @@ public class CacheConfiguration {
 	private Registration registration
 	@Autowired
 	private RequestHistoryStore store
-
+//	@Autowired
+//	private ResponseEntityStreamSerializer responseEntityStreamSerializer
 
 	@Bean
 	@Autowired
-	public HazelcastInstance getHazelcastInstance(RequestHistoryStore requestHistoryStore) {
+	public HazelcastInstance getHazelcastInstance() {
 		log.debug('Configuring Hazelcast')
 		Config config = new Config()
 		// The serviceId is by default the application's name, see Spring Boot's
@@ -59,6 +63,11 @@ public class CacheConfiguration {
 		config.getHotRestartPersistenceConfig().setBaseDir(Paths.get(System.getenv('APPDATA'), serviceId).toFile())
 		config.getHotRestartPersistenceConfig().setValidationTimeoutSeconds(600)
 		config.getHotRestartPersistenceConfig().setDataLoadTimeoutSeconds(1200)
+		// Serializer
+		//		SerializerConfig sc = new SerializerConfig()
+		//				.setImplementation(responseEntityStreamSerializer)
+		//				.setTypeClass(ResponseEntity.class);
+		//		config.getSerializationConfig().addSerializerConfig(sc);
 
 		config.getMapConfigs().put('default', initializeDefaultMapConfig())
 		config.getMapConfigs().put('persistableCache', initializePersistableMapConfig())

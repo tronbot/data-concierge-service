@@ -2,6 +2,7 @@ package io.tronbot.dc.dao
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 
 import io.tronbot.dc.domain.RequestHistory
 
@@ -11,10 +12,12 @@ import io.tronbot.dc.domain.RequestHistory
  * @date Feb 6, 2017
  */
 interface RequestHistoryRepository extends JpaRepository<RequestHistory, Long>{
+	
 	@Query('SELECT req.request FROM RequestHistory req')
 	Set<String> findAllRequests()
 	
-	RequestHistory findByRequest(final String request);
-	
+	@Query('SELECT req FROM RequestHistory req WHERE req.request = :request ORDER BY req.timestamp DESC')
+	RequestHistory findByRequest(@Param('request') final String request);
+
 	void deleteByRequest(String request);
 }

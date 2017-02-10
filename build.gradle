@@ -47,6 +47,7 @@ dependencies {
 	compile("org.springframework.boot:spring-boot-starter-web")
 	
 	compile("org.codehaus.groovy:groovy")
+	compile("org.codehaus.groovy:groovy-json")
 	
 	compile("com.fasterxml.jackson.datatype:jackson-datatype-json-org")
     compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")

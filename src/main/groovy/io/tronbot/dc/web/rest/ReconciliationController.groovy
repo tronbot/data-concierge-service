@@ -1,7 +1,6 @@
 package io.tronbot.dc.web.rest
 
 import org.springframework.cloud.context.config.annotation.RefreshScope
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -29,8 +28,7 @@ class ReconciliationController {
 
 	@GetMapping('/business')
 	@ResponseBody
-	public ResponseEntity business(@RequestParam('q') String keywords){
-		def res = service.queryBusiness(keywords)
-		return ResponseEntity.ok(res)
+	public Object business(@RequestParam('q') String keywords){
+		return service.queryBusiness(keywords)
 	}
 }

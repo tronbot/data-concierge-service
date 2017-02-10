@@ -16,25 +16,19 @@ import javax.persistence.Table
  */
 @Entity
 @Access(AccessType.FIELD)
-@Table(indexes = [@Index(name = 'IDX_REQHIS', columnList = 'request')])
-public class RequestHistory{
+@Table(indexes = [@Index(name = 'IDX_BIZ', columnList = 'place_id')])
+public class Business{
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	Long id
-	@Column(length = 1024, nullable = false)
-	String request
-	@Column(columnDefinition = 'text', nullable = false)
-	String response
-	@Column(nullable = false)
-	Date timestamp
-
-	public RequestHistory(){
-		//why JPA!!!
-	}
-	public RequestHistory(String request, String response) {
-		super()
-		this.request = request
-		this.response = response
-		this.timestamp = new Date()
-	}
+	String place_id
+	String name
+	String website
+	String googleMapURL
+	String phone
+	//Address
+	String address
+	
+	Float latitude
+	Float longitude
 }

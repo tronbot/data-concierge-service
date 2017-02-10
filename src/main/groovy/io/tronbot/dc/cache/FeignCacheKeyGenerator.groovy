@@ -1,4 +1,4 @@
-package io.tronbot.dc.client
+package io.tronbot.dc.cache
 
 import static org.springframework.core.annotation.AnnotatedElementUtils.findMergedAnnotation
 
