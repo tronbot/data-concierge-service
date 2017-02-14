@@ -8,8 +8,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
-
 @Configuration
 // @EnableJpaRepositories("io.tronbot.dc.repository")
 // @EnableJpaAuditing(auditorAwareRef = "springSecurityAuditorAware")
@@ -29,8 +27,8 @@ public class DatabaseConfiguration {
 		return Server.createTcpServer("-tcp", "-tcpAllowOthers");
 	}
 
-	@Bean
-	public Hibernate5Module hibernate5Module() {
-		return new Hibernate5Module();
-	}
+//	@Bean
+//	public Hibernate5Module hibernate5Module() {
+//		return new Hibernate5Module();
+//	}
 }

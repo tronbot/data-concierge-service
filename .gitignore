@@ -114,6 +114,7 @@ Desktop.ini
 # Others
 ######################
 *.class
+*.mdmp
 *.*~
 *~
 .merge_file*

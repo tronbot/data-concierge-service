@@ -6,8 +6,10 @@ import org.springframework.stereotype.Service
 import com.hazelcast.core.MapStoreAdapter
 
 import groovy.util.logging.Log4j
+import io.tronbot.dc.RequestHistoryWriter
 import io.tronbot.dc.dao.RequestHistoryRepository
 import io.tronbot.dc.domain.RequestHistory
+import io.tronbot.dc.domain.RequestHistory.Status
 
 /**
  * @author <a href="mailto:juanyong.zhang@gmail.com">Juanyong Zhang</a> 
@@ -18,8 +20,8 @@ import io.tronbot.dc.domain.RequestHistory
 public class RequestHistoryStore extends MapStoreAdapter<String, String> {
 	@Autowired
 	private RequestHistoryRepository repository
-	//	@Autowired
-	//	private RequestHistoryWriter writer
+	@Autowired
+	private RequestHistoryWriter writer
 
 	@Override
 	public String load(String key) {
@@ -35,7 +37,12 @@ public class RequestHistoryStore extends MapStoreAdapter<String, String> {
 	@Override
 	public void store(String key, String value) {
 		RequestHistory his = new RequestHistory(key, value);
-		repository.save(his)
+		if(Status.OK.equals(his.getStatus())){
+			repository.save(his)
+		}else{
+			log.warn "Unable to resolve : ${key}"
+			log.warn value
+		}
 	}
 
 

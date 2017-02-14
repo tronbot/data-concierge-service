@@ -40,14 +40,14 @@ class FeignCacheKeyGenerator implements KeyGenerator{
 		RequestMapping mtdReq = findMergedAnnotation(method,
 				RequestMapping.class)
 
-		StringBuilder keyBuilder = new StringBuilder()
-		!mtdReq?:keyBuilder.append(mtdReq.method().join(', '))
-		!clzReq?:keyBuilder.append(clzReq.method().join(', '))
-		keyBuilder.append(' - ')
+		StringBuilder keyBuilder = new StringBuilder('curl "')
+//		!mtdReq?:keyBuilder.append(mtdReq.method().join(', '))
+//		!clzReq?:keyBuilder.append(clzReq.method().join(', '))
+//		keyBuilder.append(' - ')
 		!clzFeign?:keyBuilder.append(clzFeign.url()+'/')
 				.append(clzFeign.path()+'/')
 		!clzReq?:keyBuilder.append(clzReq.value()[0]+'/')
-		!mtdReq?:keyBuilder.append(mtdReq.value()[0])
+		!mtdReq?:keyBuilder.append(mtdReq.value()[0]+'"')
 		String key = propertyResolver.resolvePlaceholders(keyBuilder.toString())
 		return key.replaceAll('(?<!(http:|https:))[//]+', '/') // remove duplicate slashes
 				.replaceAll('\\{(.+)\\}', SimpleKeyGenerator.generateKey(params).toString()) // FIXME current only handle single parameter

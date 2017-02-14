@@ -10,18 +10,15 @@ import org.springframework.cloud.client.serviceregistry.Registration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.env.Environment
-import org.springframework.http.ResponseEntity
 
 import com.hazelcast.config.Config
 import com.hazelcast.config.EvictionPolicy
 import com.hazelcast.config.MapConfig
 import com.hazelcast.config.MaxSizeConfig
-import com.hazelcast.config.SerializerConfig
 import com.hazelcast.core.Hazelcast
 import com.hazelcast.core.HazelcastInstance
 
 import groovy.util.logging.Log4j
-import io.tronbot.dc.cache.ResponseEntityStreamSerializer
 import io.tronbot.dc.service.RequestHistoryStore
 
 @Configuration
@@ -105,8 +102,8 @@ public class CacheConfiguration {
 		// mapConfig.getMapStoreConfig().setClassName('io.tronbot.dc.service.RequestHistoryStore')
 		mapConfig.getMapStoreConfig().setImplementation(store)
 		if (env.acceptsProfiles(Constants.SPRING_PROFILE_DEVELOPMENT)) {
-			mapConfig.getMapStoreConfig().setWriteBatchSize(1)
-			mapConfig.getMapStoreConfig().setWriteDelaySeconds(5)
+			mapConfig.getMapStoreConfig().setWriteBatchSize(100)
+			mapConfig.getMapStoreConfig().setWriteDelaySeconds(30)
 		} else {
 			mapConfig.getMapStoreConfig().setWriteBatchSize(1000)
 			mapConfig.getMapStoreConfig().setWriteDelaySeconds(60)
