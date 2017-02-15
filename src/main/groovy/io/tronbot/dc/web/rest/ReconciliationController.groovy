@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 
 import groovy.util.logging.Log4j
-import io.tronbot.dc.common.test.json.Business
+import io.tronbot.dc.domain.Business
 import io.tronbot.dc.dto.Reconciliation
 import io.tronbot.dc.service.ReconciliationService
 
