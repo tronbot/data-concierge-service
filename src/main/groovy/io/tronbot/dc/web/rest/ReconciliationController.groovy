@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 
-import groovy.json.JsonSlurper
 import groovy.util.logging.Log4j
 import io.tronbot.dc.domain.Business
 import io.tronbot.dc.dto.Reconciliation
@@ -26,11 +25,9 @@ import io.tronbot.dc.service.ReconciliationService
 @Log4j
 class ReconciliationController {
 	private final ReconciliationService service
-	private final JsonSlurper json
 
-	ReconciliationController(ReconciliationService service, JsonSlurper json){
+	ReconciliationController(ReconciliationService service){
 		this.service = service
-		this.json = json
 	}
 
 	@GetMapping('/business')

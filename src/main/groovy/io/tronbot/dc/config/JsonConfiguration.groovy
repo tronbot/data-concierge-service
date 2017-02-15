@@ -3,10 +3,8 @@ package io.tronbot.dc.config
 import org.springframework.context.annotation.Bean
 
 import com.jayway.jsonpath.Configuration
-import com.jayway.jsonpath.JsonPath
 
-import groovy.json.JsonSlurper
-import io.tronbot.json.JsonPathReflector
+import io.tronbot.dc.common.json.JsonPathReflector
 
 /**
  * @author <a href="mailto:juanyong.zhang@gmail.com">Juanyong Zhang</a> 
@@ -16,15 +14,9 @@ import io.tronbot.json.JsonPathReflector
 class JsonConfiguration {
 
 	@Bean
-	JsonSlurper jsonSlurper(){
-		return new JsonSlurper()
-	}
-
-	@Bean
 	JsonPathReflector jsonPathReflector(Configuration jsonPathConfiguration){
 		return new JsonPathReflector(jsonPathConfiguration)
 	}
-
 
 	@Bean
 	Configuration jsonPathConfiguration(){
