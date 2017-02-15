@@ -8,8 +8,8 @@ import com.jayway.jsonpath.PathNotFoundException
 import groovy.util.logging.Log4j
 import io.tronbot.dc.client.GooglePlacesClient
 import io.tronbot.dc.dao.BusinessRepository
-import io.tronbot.dc.domain.Business
 import io.tronbot.dc.common.json.JsonPathReflector
+import io.tronbot.dc.common.test.json.Business
 
 /**
  * @author <a href="mailto:juanyong.zhang@gmail.com">Juanyong Zhang</a> 

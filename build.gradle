@@ -47,16 +47,6 @@ dependencies {
 	compile("org.springframework.boot:spring-boot-starter-web")
 	
 	compile("org.codehaus.groovy:groovy:2.4.8")
-	//compile("org.codehaus.groovy:groovy-json")
-	//compile("com.jayway.jsonpath:json-path")
-	
-	//compile("com.fasterxml.jackson.datatype:jackson-datatype-json-org")
-    //compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
-    //compile("com.fasterxml.jackson.datatype:jackson-datatype-hibernate5")
-    //compile("com.fasterxml.jackson.core:jackson-annotations")
-    //compile("com.fasterxml.jackson.core:jackson-databind")
-	compile("commons-io:commons-io")
-	compile("org.apache.commons:commons-lang3:3.5")
 	
 	compile("com.hazelcast:hazelcast")
     compile("com.hazelcast:hazelcast-spring")
