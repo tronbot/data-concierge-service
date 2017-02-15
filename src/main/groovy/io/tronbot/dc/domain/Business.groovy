@@ -2,6 +2,7 @@ package io.tronbot.dc.domain
 
 import javax.persistence.Access
 import javax.persistence.AccessType
+import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
@@ -28,6 +29,7 @@ public class Business{
 	Long id
 	//	@JsonProperty('status')
 	@JsonPathField('$.result.place_id')
+	@Column(unique=true)
 	String placeId
 	@JsonPathField('$.result.name')
 	String name
