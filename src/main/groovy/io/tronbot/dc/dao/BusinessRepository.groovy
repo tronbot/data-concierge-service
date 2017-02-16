@@ -1,6 +1,8 @@
 package io.tronbot.dc.dao
 
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 
 import io.tronbot.dc.domain.Business
 
@@ -13,6 +15,6 @@ import io.tronbot.dc.domain.Business
  */
 interface BusinessRepository extends JpaRepository<Business, Long>{
 
-
-	Business findByPlaceId(final String placeId);
+	@Query('SELECT biz FROM Business biz WHERE biz.placeId = :placeId ORDER BY biz.timestamp DESC')
+	Business findByPlaceId(@Param('placeId') final String placeId);
 }

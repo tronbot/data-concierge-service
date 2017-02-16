@@ -30,7 +30,11 @@ class Receiver  {
 	@ServiceActivator(inputChannel=Sink.INPUT)
 	public void saveBusiness(Business business){
 		log.debug "Saving Business: ${ToStringBuilder.reflectionToString(business)}"
-		businessRepository.save(business)
+		if(!businessRepository.findByPlaceId(business.getPlaceId())){
+			businessRepository.save(business)
+		}
+			
+		
 	}
 
 	@ServiceActivator(inputChannel=Sink.INPUT)

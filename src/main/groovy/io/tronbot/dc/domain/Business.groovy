@@ -68,10 +68,15 @@ public class Business{
 	Double longitude
 	Date timestamp = new Date()
 	@Enumerated(EnumType.STRING)
-	Type type;
+	Type type
 
 	enum Type{
 		accounting,
+		administrative_area_level_1,
+		administrative_area_level_2,
+		administrative_area_level_3,
+		administrative_area_level_4,
+		administrative_area_level_5,
 		airport,
 		amusement_park,
 		aquarium,
@@ -96,7 +101,9 @@ public class Business{
 		church,
 		city_hall,
 		clothing_store,
+		colloquial_area,
 		convenience_store,
+		country,
 		courthouse,
 		dentist,
 		department_store,
@@ -107,12 +114,14 @@ public class Business{
 		establishment,
 		finance,
 		fire_station,
+		floor,
 		florist,
 		food,
 		funeral_home,
 		furniture_store,
 		gas_station,
 		general_contractor,
+		geocode,
 		grocery_or_supermarket,
 		gym,
 		hair_care,
@@ -122,12 +131,14 @@ public class Business{
 		home_goods_store,
 		hospital,
 		insurance_agency,
+		intersection,
 		jewelry_store,
 		laundry,
 		lawyer,
 		library,
 		liquor_store,
 		local_government_office,
+		locality,
 		locksmith,
 		lodging,
 		meal_delivery,
@@ -137,6 +148,8 @@ public class Business{
 		movie_theater,
 		moving_company,
 		museum,
+		natural_feature,
+		neighborhood,
 		night_club,
 		painter,
 		park,
@@ -146,11 +159,21 @@ public class Business{
 		physiotherapist,
 		place_of_worship,
 		plumber,
+		point_of_interest,
 		police,
+		political,
+		post_box,
 		post_office,
+		postal_code,
+		postal_code_prefix,
+		postal_code_suffix,
+		postal_town,
+		premise,
 		real_estate_agency,
 		restaurant,
 		roofing_contractor,
+		room,
+		route,
 		rv_park,
 		school,
 		shoe_store,
@@ -159,6 +182,15 @@ public class Business{
 		stadium,
 		storage,
 		store,
+		street_address,
+		street_number,
+		sublocality,
+		sublocality_level_1,
+		sublocality_level_2,
+		sublocality_level_3,
+		sublocality_level_4,
+		sublocality_level_5,
+		subpremise,
 		subway_station,
 		synagogue,
 		taxi_stand,
@@ -167,39 +199,7 @@ public class Business{
 		travel_agency,
 		university,
 		veterinary_care,
-		zoo,
-		administrative_area_level_1,
-		administrative_area_level_2,
-		administrative_area_level_3,
-		administrative_area_level_4,
-		administrative_area_level_5,
-		colloquial_area,
-		country,
-		floor,
-		geocode,
-		intersection,
-		locality,
-		natural_feature,
-		neighborhood,
-		political,
-		point_of_interest,
-		post_box,
-		postal_code,
-		postal_code_prefix,
-		postal_code_suffix,
-		postal_town,
-		premise,
-		room,
-		route,
-		street_address,
-		street_number,
-		sublocality,
-		sublocality_level_4,
-		sublocality_level_5,
-		sublocality_level_3,
-		sublocality_level_2,
-		sublocality_level_1,
-		subpremise
+		zoo
 
 		public static Type valueOfIgnoreCase(String key){
 			if(key){
@@ -207,8 +207,15 @@ public class Business{
 					it.name().equalsIgnoreCase(key) ? it : null
 				}
 			}
-			return null;
+			return null
 		}
+		
+		
+		public static Type valueOfSynonym(String synonym){
+			//FIXME handle synonym and return array of synonym types
+			return valueOfIgnoreCase(synonym)
+		}
+		
 	}
 }
 
