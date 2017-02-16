@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service
 import com.hazelcast.core.MapStoreAdapter
 
 import groovy.util.logging.Log4j
-import io.tronbot.dc.RequestHistoryWriter
 import io.tronbot.dc.dao.RequestHistoryRepository
 import io.tronbot.dc.domain.RequestHistory
 import io.tronbot.dc.domain.RequestHistory.Status
@@ -20,8 +19,6 @@ import io.tronbot.dc.domain.RequestHistory.Status
 public class RequestHistoryStore extends MapStoreAdapter<String, String> {
 	@Autowired
 	private RequestHistoryRepository repository
-	@Autowired
-	private RequestHistoryWriter writer
 
 	@Override
 	public String load(String key) {

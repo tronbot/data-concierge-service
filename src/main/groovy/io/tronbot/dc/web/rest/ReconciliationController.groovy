@@ -1,7 +1,6 @@
 package io.tronbot.dc.web.rest
 
 import org.apache.commons.lang3.StringUtils
-import org.springframework.cloud.context.config.annotation.RefreshScope
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -21,7 +20,6 @@ import io.tronbot.dc.service.ReconciliationService
 
 @RestController
 @RequestMapping('/reconciliation')
-@RefreshScope
 @Log4j
 class ReconciliationController {
 	private final ReconciliationService service
