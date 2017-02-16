@@ -209,13 +209,6 @@ public class Business{
 			}
 			return null
 		}
-		
-		
-		public static Type valueOfSynonym(String synonym){
-			//FIXME handle synonym and return array of synonym types
-			return valueOfIgnoreCase(synonym)
-		}
-		
 	}
 }
 
