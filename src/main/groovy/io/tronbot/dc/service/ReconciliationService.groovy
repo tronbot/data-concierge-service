@@ -11,6 +11,7 @@ import io.tronbot.dc.common.json.JsonPathReflector
 import io.tronbot.dc.dao.BusinessRepository
 import io.tronbot.dc.domain.Business
 import io.tronbot.dc.domain.Business.Type
+import io.tronbot.dc.messaging.Emitter
 
 /**
  * @author <a href="mailto:juanyong.zhang@gmail.com">Juanyong Zhang</a> 
@@ -22,10 +23,13 @@ public class ReconciliationService{
 	private final GooglePlacesClient client
 	private final JsonPathReflector json
 	private final BusinessRepository businessRepository
+	private final Emitter emitter
+	
 
-	ReconciliationService(GooglePlacesClient client, JsonPathReflector json, BusinessRepository businessRepository){
+	ReconciliationService(GooglePlacesClient client, JsonPathReflector json, BusinessRepository businessRepository, Emitter emitter){
 		this.client = client
 		this.json = json
+		this.emitter = emitter
 		this.businessRepository = businessRepository
 	}
 
@@ -45,9 +49,8 @@ public class ReconciliationService{
 		if(StringUtils.isNotBlank(resp)){
 			result = json.from(query(keywords), new Business())
 			result.setType(businessType)
-			//FIXME MOVE TO KAFKA - Non-blocking way
 			if(!businessRepository.findByPlaceId(result.getPlaceId())){
-				businessRepository.save(result)
+				emitter.saveBusiness(result)
 			}
 		}
 		return result

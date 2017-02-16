@@ -9,6 +9,7 @@ import groovy.util.logging.Log4j
 import io.tronbot.dc.dao.RequestHistoryRepository
 import io.tronbot.dc.domain.RequestHistory
 import io.tronbot.dc.domain.RequestHistory.Status
+import io.tronbot.dc.messaging.Emitter
 
 /**
  * @author <a href="mailto:juanyong.zhang@gmail.com">Juanyong Zhang</a> 
@@ -19,6 +20,9 @@ import io.tronbot.dc.domain.RequestHistory.Status
 public class RequestHistoryStore extends MapStoreAdapter<String, String> {
 	@Autowired
 	private RequestHistoryRepository repository
+	@Autowired
+	private Emitter emitter
+	
 
 	@Override
 	public String load(String key) {
@@ -33,9 +37,9 @@ public class RequestHistoryStore extends MapStoreAdapter<String, String> {
 
 	@Override
 	public void store(String key, String value) {
-		RequestHistory his = new RequestHistory(key, value);
+		RequestHistory his = new RequestHistory(key, value)
 		if(Status.OK.equals(his.getStatus())){
-			repository.save(his)
+			emitter.saveRequestHistory(his)
 		}else{
 			log.warn "Unable to resolve : ${key}"
 			log.warn value
