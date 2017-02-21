@@ -30,7 +30,7 @@ public class Physician  {
 	List<License> licenses
 	@JsonPathElement('$.taxonomies')
 	List<License> licenses2
-	@JsonPathElement(value='$.taxonomies', required=true)
+	//	@JsonPathElement(value='$.taxonomies')
 	License[] licenseArray
 	@JsonPathElement(value='$.taxonomies')
 	List<String> licenseStrs
@@ -41,11 +41,6 @@ public class Physician  {
 	Business business
 	@JsonPathElement('$.basic')
 	Basic basicInfo
-
-
-
-
-
 
 	public static void main(String[] args){
 		URL url = new URL('https://npiregistry.cms.hhs.gov/api?number=&enumeration_type=NPI-1&taxonomy_description=&first_name=TONY&last_name=HWANG&organization_name=&address_purpose=&city=INDIO&state=CA&postal_code=92201&country_code=US&limit=20&skip=&pretty=')
