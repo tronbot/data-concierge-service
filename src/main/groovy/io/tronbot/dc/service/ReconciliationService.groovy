@@ -7,6 +7,7 @@ import com.jayway.jsonpath.PathNotFoundException
 
 import groovy.util.logging.Log4j
 import io.tronbot.dc.client.GooglePlacesClient
+import io.tronbot.dc.client.NPIRegistryClientHelper
 import io.tronbot.dc.common.json.JsonPathReflector
 import io.tronbot.dc.dao.BusinessRepository
 import io.tronbot.dc.domain.Business
@@ -20,18 +21,19 @@ import io.tronbot.dc.messaging.Emitter
 @Service
 @Log4j
 public class ReconciliationService{
-	private final GooglePlacesClient client
+	private final GooglePlacesClient googlePlacesClient
+	private final NPIRegistryClientHelper npiRegistryClient
 	private final JsonPathReflector json
 	private final BusinessRepository businessRepository
 	private final Emitter emitter
 
-	ReconciliationService(GooglePlacesClient client, JsonPathReflector json, BusinessRepository businessRepository, Emitter emitter){
-		this.client = client
+	ReconciliationService(GooglePlacesClient googlePlacesClient, NPIRegistryClientHelper npiRegistryClient,JsonPathReflector json, BusinessRepository businessRepository, Emitter emitter){
+		this.googlePlacesClient = googlePlacesClient
+		this.npiRegistryClient = npiRegistryClient
 		this.json = json
 		this.emitter = emitter
 		this.businessRepository = businessRepository
 	}
-
 
 	/**
 	 * 
@@ -58,22 +60,36 @@ public class ReconciliationService{
 		return Type.valueOfIgnoreCase(k)
 	}
 
+	public Business queryPhysician(String keywords){
+		Business business = queryBusiness(Type.doctor, keywords)
+		//		if(business){
+		//			NPIQuery query = NPIQuery.fromBusiness(business)
+		//			String firstName = keywords.substring(0, keywords.indexOf(' '))
+		//			String lastName = keywords.substring(keywords.indexOf(' ')+1, keywords.indexOf(','))
+		//			query.setFirstName(firstName)
+		//			query.setLastName(lastName)
+		//			Object npi = npiRegistryClient.api(query)
+		//			log.info(npi)
+		//		}
+		return
+	}
+
 	public String query(String keywords){
-		keywords = groomKeywords(keywords)
-		if(!keywords){
+		String q = groomKeywords(keywords)
+		if(!q){
 			return null
 		}
 		String place = null
 		try {
-			String placeId = json.read(client.query(keywords), '$.results[0].place_id')
-			place = client.detail(placeId)
+			String placeId = json.read(googlePlacesClient.query(q), '$.results[0].place_id')
+			place = googlePlacesClient.detail(placeId)
 		} catch (PathNotFoundException e) {
-			log.warn "Unable to resolve : ${keywords}"
+			log.warn "Unable to resolve : ${q}"
 		}
 		return place
 	}
 
-	private String groomKeywords(String keywords){
+	public static String groomKeywords(String keywords){
 		return keywords.toLowerCase().replace('\t', ' ').replaceAll('null', '').replaceAll('\\W -,.&', '').trim().replaceAll(' +', ' ')
 	}
 }

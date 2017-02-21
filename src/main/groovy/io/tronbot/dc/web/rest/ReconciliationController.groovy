@@ -15,6 +15,12 @@ import io.tronbot.dc.dto.Reconciliation
 import io.tronbot.dc.service.ReconciliationService
 
 /**
+ * 
+ * business('business name, address')
+ * hospital('business name, address') equal to business, with desiretype of hospital
+ * practice ('organization name, address') - google place + NPI response  = Practice(Persist)
+ * physician('firstname lastname, address') - google place + NPI response = Physician(Persist)
+ * 
  * @author <a href='mailto:juanyong.zhang@gmail.com'>Juanyong Zhang</a> 
  * @date Feb 2, 2017
  */
@@ -25,9 +31,11 @@ import io.tronbot.dc.service.ReconciliationService
 class ReconciliationController {
 	private final ReconciliationService service
 
+
 	ReconciliationController(ReconciliationService service){
 		this.service = service
 	}
+
 
 	private ResponseEntity<Reconciliation> businessInception(String keywords, Type... businessTypes){
 		Type businessType = businessTypes[0]
@@ -46,9 +54,32 @@ class ReconciliationController {
 			if(result){
 				return Reconciliation.confident(result)
 			}
-		} 
+		}
 		String possibleKeywords = StringUtils.substring(keywords, keywords.indexOf(',')+1)
 		result = service.queryBusiness(businessType, possibleKeywords)
+		return result ? Reconciliation.possible(result) : Reconciliation.notFound()
+	}
+
+	private ResponseEntity<Reconciliation> doctorInception(String keywords, Type... businessTypes){
+		Type businessType = businessTypes[0]
+		Business result = service.queryPhysician(keywords)
+		if(result){
+			return Reconciliation.accurate(result)
+		}else if(businessTypes){
+			String name = !keywords ?:  StringUtils.substring(keywords, 0, keywords.indexOf(','))
+			businessTypes.each { type ->
+				String confidentKeywords = StringUtils.replaceFirst(keywords, name, type.toString())
+				result = service.queryPhysician(confidentKeywords)
+				if(result){
+					return
+				}
+			}
+			if(result){
+				return Reconciliation.confident(result)
+			}
+		}
+		String possibleKeywords = StringUtils.substring(keywords, keywords.indexOf(',')+1)
+		result = service.queryPhysician( possibleKeywords)
 		return result ? Reconciliation.possible(result) : Reconciliation.notFound()
 	}
 
@@ -59,11 +90,10 @@ class ReconciliationController {
 		return businessInception(keywords, Type.hospital, Type.health);
 	}
 
-	@GetMapping('/doctor')
+	@GetMapping('/physician')
 	@ResponseBody
-	public ResponseEntity<Reconciliation> doctor(@RequestParam('q') String keywords){
-
-		return businessInception(keywords, Type.doctor);
+	public ResponseEntity<Reconciliation> physician(@RequestParam('q') String keywords){
+		return doctorInception(keywords, Type.doctor);
 	}
 
 

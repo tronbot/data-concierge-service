@@ -6,11 +6,12 @@ import java.lang.reflect.Method
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.interceptor.KeyGenerator
-import org.springframework.cache.interceptor.SimpleKeyGenerator
 import org.springframework.cloud.netflix.feign.FeignClient
 import org.springframework.core.env.ConfigurablePropertyResolver
 import org.springframework.stereotype.Component
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 
 /**
  * @author <a href="mailto:juanyong.zhang@gmail.com">Juanyong Zhang</a> 
@@ -41,16 +42,26 @@ class FeignCacheKeyGenerator implements KeyGenerator{
 				RequestMapping.class)
 
 		StringBuilder keyBuilder = new StringBuilder('curl "')
-//		!mtdReq?:keyBuilder.append(mtdReq.method().join(', '))
-//		!clzReq?:keyBuilder.append(clzReq.method().join(', '))
-//		keyBuilder.append(' - ')
+		//		!mtdReq?:keyBuilder.append(mtdReq.method().join(', '))
+		//		!clzReq?:keyBuilder.append(clzReq.method().join(', '))
+		//		keyBuilder.append(' - ')
 		!clzFeign?:keyBuilder.append(clzFeign.url()+'/')
 				.append(clzFeign.path()+'/')
 		!clzReq?:keyBuilder.append(clzReq.value()[0]+'/')
 		!mtdReq?:keyBuilder.append(mtdReq.value()[0]+'"')
 		String key = propertyResolver.resolvePlaceholders(keyBuilder.toString())
-		return key.replaceAll('(?<!(http:|https:))[//]+', '/') // remove duplicate slashes
-				.replaceAll('\\{(.+)\\}', SimpleKeyGenerator.generateKey(params).toString()) // FIXME current only handle single parameter
+		key = key.replaceAll('(?<!(http:|https:))[//]+', '/')// remove duplicate slashes
+
+		method.getParameters().eachWithIndex  { param, idx ->
+			//Check placeholder in PathVariable and RequestParam
+			String placeholder = findMergedAnnotation(param, PathVariable.class)?.value() ?
+					findMergedAnnotation(param, PathVariable.class)?.value() : findMergedAnnotation(param, RequestParam.class)?.value()
+			if(placeholder){
+				//				key = key.replaceAll("\\{(.+)\\}", SimpleKeyGenerator.generateKey(params).toString()) // FIXME current only handle single parameter
+				key = key.replaceAll("\\{${placeholder}\\}", params[idx] ? params[idx].toString() : '')
+			}
+		}
+		return key
 	}
 
 }
