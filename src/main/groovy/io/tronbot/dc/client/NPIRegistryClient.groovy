@@ -1,5 +1,7 @@
 package io.tronbot.dc.client
 
+import java.util.Map
+
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.cloud.netflix.feign.FeignClient
 import org.springframework.http.MediaType
@@ -18,7 +20,7 @@ public interface NPIRegistryClient {
 	@Cacheable(value = 'persistableCache', keyGenerator = 'feignCacheKeyGenerator')
 	@GetMapping(value = 'api?number={number}&enumeration_type={enumeration_type}&taxonomy_description={taxonomy_description}&first_name={first_name}&last_name={last_name}&organization_name={organization_name}&address_purpose={address_purpose}&city={city}&state={state}&postal_code={postal_code}&country_code={country_code}&limit={limit}&skip={skip}&pretty={pretty}'
 	, produces = MediaType.APPLICATION_JSON_VALUE)
-	String api(@PathVariable('number') String number,
+	Map<String, Object> query(@PathVariable('number') String number,
 			@PathVariable('enumeration_type') String enumerationType,
 			@PathVariable('taxonomy_description') String taxonomyDescription,
 			@PathVariable('first_name') String firstName,
@@ -69,8 +71,8 @@ public class NPIRegistryClientHelper{
 		this.npiRegistryClient = npiRegistryClient
 	}
 
-	String api(NPIQuery query){
-		npiRegistryClient.api(	query.getNumber(),
+	Map<String, Object> query(NPIQuery query){
+		npiRegistryClient.query(query.getNumber(),
 				query.getEnumerationType(),
 				query.getTaxonomyDescription(),
 				query.getFirstName(),

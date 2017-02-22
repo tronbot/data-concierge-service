@@ -1,6 +1,5 @@
 package io.tronbot.dc.service
 
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 import com.hazelcast.core.MapStoreAdapter
@@ -8,7 +7,7 @@ import com.hazelcast.core.MapStoreAdapter
 import groovy.util.logging.Log4j
 import io.tronbot.dc.dao.RequestHistoryRepository
 import io.tronbot.dc.domain.RequestHistory
-import io.tronbot.dc.domain.RequestHistory.Status
+import io.tronbot.dc.helper.JsonHelper
 import io.tronbot.dc.messaging.Emitter
 
 /**
@@ -17,17 +16,22 @@ import io.tronbot.dc.messaging.Emitter
  */
 @Service
 @Log4j
-public class RequestHistoryStore extends MapStoreAdapter<String, String> {
-	@Autowired
-	private RequestHistoryRepository repository
-	@Autowired
-	private Emitter emitter
-	
+public class RequestHistoryStore extends MapStoreAdapter<String, Map<String, Object>> {
+	private final RequestHistoryRepository repository
+	private final Emitter emitter
+	private final JsonHelper jsonHelper
+
+	public RequestHistoryStore(RequestHistoryRepository repository, Emitter emitter, JsonHelper jsonHelper) {
+		super()
+		this.repository = repository
+		this.emitter = emitter
+		this.jsonHelper = jsonHelper
+	}
 
 	@Override
-	public String load(String key) {
+	public Map<String, Object> load(String key) {
 		RequestHistory reqHis = repository.findByRequest(key)
-		return reqHis?.getResponse()
+		return reqHis ? jsonHelper.stringToMap(reqHis.getResponse()) : null
 	}
 
 	@Override
@@ -36,13 +40,13 @@ public class RequestHistoryStore extends MapStoreAdapter<String, String> {
 	}
 
 	@Override
-	public void store(String key, String value) {
-		RequestHistory his = new RequestHistory(key, value)
-		if(Status.OK.equals(his.getStatus())){
+	public void store(String key, Map<String, Object> json) {
+		String value = jsonHelper.mapToString(json);
+		if(value){
+			RequestHistory his = new RequestHistory(key, value)
 			emitter.saveRequestHistory(his)
 		}else{
 			log.warn "Unable to resolve : ${key}"
-			log.warn value
 		}
 	}
 

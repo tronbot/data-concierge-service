@@ -1,7 +1,10 @@
 package io.tronbot.dc.config
 
 import org.springframework.context.annotation.Bean
+import org.springframework.stereotype.Component
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.jayway.jsonpath.Configuration
 
 import io.tronbot.dc.common.json.JsonPathReflector
@@ -21,5 +24,10 @@ class JsonConfiguration {
 	@Bean
 	Configuration jsonPathConfiguration(){
 		return Configuration.defaultConfiguration()
+	}
+
+	@Bean
+	Gson gson(){
+		return new Gson();
 	}
 }

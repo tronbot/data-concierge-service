@@ -31,9 +31,6 @@ public class RequestHistory{
 	String response
 	@Column(nullable = false)
 	Date timestamp
-	@Enumerated(EnumType.STRING)
-	Status status = Status.UNKNOWN
-
 
 	public RequestHistory(){
 		//why JPA!!!
@@ -43,14 +40,10 @@ public class RequestHistory{
 		this.request = request
 		this.response = response
 		this.timestamp = new Date()
-		try{
-			this.status = Status.valueOf(JsonPath.read(response, 'status').toString())
-		}catch(Exception e){
-			//Error happend, stay unknown
-		}
 	}
-
-	enum Status{
-		OK, UNKNOWN, OVER_QUERY_LIMIT, ZERO_RESULTS
-	}
+	//	@Enumerated(EnumType.STRING)
+	//	Status status = Status.UNKNOWN
+	//	enum Status{
+	//		OK, UNKNOWN, OVER_QUERY_LIMIT, ZERO_RESULTS
+	//	}
 }
