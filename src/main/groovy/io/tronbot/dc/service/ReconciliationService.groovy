@@ -1,5 +1,6 @@
 package io.tronbot.dc.service
 
+import org.apache.commons.beanutils.BeanUtils
 import org.springframework.stereotype.Service
 
 import groovy.util.logging.Log4j
@@ -31,53 +32,9 @@ public class ReconciliationService{
 		this.emitter = emitter
 	}
 
-	//	/**
-	//	 *
-	//	 * @param keywords - comma separated string, business name, address...
-	//	 * @return
-	//	 */
-	//	public Business queryBusiness(String keywords){
-	//		return queryBusiness(guessBusinessType(keywords), keywords)
-	//	}
-	//
-	//	public Business queryBusiness(Type businessType, String keywords){
-	//		Business result
-	//		String resp = query(keywords)
-	//		if(StringUtils.isNotBlank(resp)){
-	//			result = json.from(query(keywords), new Business())
-	//			result.setType(businessType)
-	//			emitter.saveBusiness(result)
-	//		}
-	//		return result
-	//	}
-	//
-	//	private Type guessBusinessType(String q){
-	//		String k = !q ?:  StringUtils.substring(q, 0, q.indexOf(','))
-	//		return Type.valueOfIgnoreCase(k)
-	//	}
-	//
-	//	public Business queryPhysician(String keywords){
-	//		Business business = queryBusiness(Type.doctor, keywords)
-	//		return
-	//	}
-	//	/**
-	//	 * @param keywords
-	//	 * @return JSON String of google place detail
-	//	 */
-	//	public String queryPlace(String keywords){
-	//		String q = groomKeywords(keywords)
-	//				if(!q){
-	//					return null
-	//				}
-	//		String place = null
-	//				try {
-	//					String placeId = json.read(googlePlaces.query(q), '$.results[0].place_id')
-	//							place = googlePlaces.detail(placeId)
-	//				} catch (PathNotFoundException e) {
-	//					log.warn "Unable to resolve : ${q}"
-	//				}
-	//		return place
-	//	}
+
+
+
 	/**
 	 * @param keywords - business name, street, city, state, zip
 	 * @return List of hospital
@@ -88,7 +45,8 @@ public class ReconciliationService{
 		if(hospitalPids){
 			log.info("${hospitalPids.size()} results found for ${keywords}")
 			hospitalPids.each{ pid ->
-				Hospital h = new Hospital(placeDetail(pid))
+				Hospital h = new Hospital()
+				BeanUtils.copyProperties(h, placeDetail(pid))
 				hospitals.add(h)
 				emitter.saveOrUpdateHospital(h)
 			}
@@ -96,7 +54,6 @@ public class ReconciliationService{
 			log.warn("No result found for : ${keywords}")
 		}
 		return hospitals;
-
 	}
 
 	/**

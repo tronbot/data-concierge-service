@@ -32,7 +32,7 @@ class Receiver implements  Emitter{
 	}
 
 	@ServiceActivator(inputChannel=Emitter.saveOrUpdateRequestHistory)
-	public void saveOrUpdateRequestHistory(RequestHistory requestHistory) {
+	public RequestHistory saveOrUpdateRequestHistory(RequestHistory requestHistory) {
 		RequestHistory exists = requestHistoryRepository.findOneByRequest(requestHistory.getRequest())
 		if(!exists){
 			log.debug "Saving RequestHistory: ${requestHistory.getRequest()}"
@@ -57,11 +57,10 @@ class Receiver implements  Emitter{
 	@ServiceActivator(inputChannel=Emitter.saveOrUpdateHospital)
 	public Hospital saveOrUpdateHospital(Hospital hospital) {
 		log.debug "Saving Hospital: ${ToStringBuilder.reflectionToString(hospital)}"
-		Hospital h = hospitalRepository.findOneByPlaceId(hospital.getPlace().getPlaceId())
+		Hospital h = hospitalRepository.findOneByPlaceId(hospital.getPlaceId())
 		if(h){
 			return h
 		}else{
-			hospital.setPlace(saveOrUpdatePlace(hospital.getPlace()))
 			return hospitalRepository.save(hospital)
 		}
 	}

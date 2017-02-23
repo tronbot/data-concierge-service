@@ -14,20 +14,16 @@ import io.tronbot.dc.domain.Place.Type
  * @date Feb 23, 2017
  */
 @Entity
-class Hospital {
+class Hospital extends Place{
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	Long id
-	@ManyToOne
-	Place place
+	//	@ManyToOne
+	//	Place place
 	@Transient
 	final Type type = Type.hospital
 
 	public Hospital(){
 		super()
-	}
-
-	public Hospital(Place place){
-		this.place = place
 	}
 }

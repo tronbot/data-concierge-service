@@ -5,6 +5,8 @@ import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
 import javax.persistence.Id
 import javax.persistence.Index
+import javax.persistence.Inheritance
+import javax.persistence.InheritanceType
 import javax.persistence.Table
 
 import io.tronbot.dc.common.json.ArrayToSingleInterpreter
@@ -18,6 +20,7 @@ import io.tronbot.dc.common.json.JsonPathElement
  */
 @Entity
 @Table(indexes = [@Index(name = 'IDX_PLACE', columnList = 'placeId')])
+@Inheritance(strategy = InheritanceType.JOINED)
 @JsonPathElement('$.result')
 class Place {
 	@Id

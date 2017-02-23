@@ -19,7 +19,7 @@ interface Emitter{
 	public static final String saveOrUpdateHospital = 'saveOrUpdateHospital'
 
 	@Gateway(requestChannel = saveOrUpdateRequestHistory)
-	void saveOrUpdateRequestHistory(RequestHistory requestHistory)
+	RequestHistory saveOrUpdateRequestHistory(RequestHistory requestHistory)
 
 	@Gateway(requestChannel = saveOrUpdatePlace)
 	Place saveOrUpdatePlace(Place place)
