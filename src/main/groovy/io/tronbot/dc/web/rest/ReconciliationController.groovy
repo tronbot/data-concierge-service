@@ -56,93 +56,106 @@ class ReconciliationController {
 		return result ? Reconciliation.accurate(result) : Reconciliation.notFound()
 	}
 	
+	/**
+	 * @param keywords - business name, street, city, state, zip
+	 * @return json list of google places
+	 */
 	@GetMapping('/places')
 	public @ResponseBody ResponseEntity places(@RequestParam('q') String keywords){
 		Object result = service.places(keywords)
 		return result ? Reconciliation.accurate(result) : Reconciliation.notFound()
 	}
 
+	/**
+	 * @param keywords - business name, street, city, state, zip
+	 * @return json list of hospitals
+	 */
+	@GetMapping('/hospitals')
+	public @ResponseBody ResponseEntity hospitals(@RequestParam('q') String keywords){
+		Object result = service.hospitals(keywords)
+		return result ? Reconciliation.accurate(result) : Reconciliation.notFound()
+	}
 
 
-//	private ResponseEntity<Reconciliation> businessInception(String keywords, Type... businessTypes){
-//		Type businessType = businessTypes[0]
-//		Business result = service.queryBusiness(businessType, keywords)
-//		if(result){
-//			return Reconciliation.accurate(result)
-//		}else if(businessTypes){
-//			String name = !keywords ?:  StringUtils.substring(keywords, 0, keywords.indexOf(','))
-//			businessTypes.each { type ->
-//				String confidentKeywords = StringUtils.replaceFirst(keywords, name, type.toString())
-//				result = service.queryBusiness(businessType, confidentKeywords)
-//				if(result){
-//					return
-//				}
-//			}
-//			if(result){
-//				return Reconciliation.confident(result)
-//			}
-//		}
-//		String possibleKeywords = StringUtils.substring(keywords, keywords.indexOf(',')+1)
-//		result = service.queryBusiness(businessType, possibleKeywords)
-//		return result ? Reconciliation.possible(result) : Reconciliation.notFound()
-//	}
-//
-//	private ResponseEntity<Reconciliation> doctorInception(String keywords, Type... businessTypes){
-//		Type businessType = businessTypes[0]
-//		Business result = service.queryPhysician(keywords)
-//		if(result){
-//			return Reconciliation.accurate(result)
-//		}else if(businessTypes){
-//			String name = !keywords ?:  StringUtils.substring(keywords, 0, keywords.indexOf(','))
-//			businessTypes.each { type ->
-//				String confidentKeywords = StringUtils.replaceFirst(keywords, name, type.toString())
-//				result = service.queryPhysician(confidentKeywords)
-//				if(result){
-//					return
-//				}
-//			}
-//			if(result){
-//				return Reconciliation.confident(result)
-//			}
-//		}
-//		String possibleKeywords = StringUtils.substring(keywords, keywords.indexOf(',')+1)
-//		result = service.queryPhysician( possibleKeywords)
-//		return result ? Reconciliation.possible(result) : Reconciliation.notFound()
-//	}
-//
-//	@GetMapping('/business')
-//	@ResponseBody
-//	public ResponseEntity<Reconciliation> business(@RequestParam('q') String keywords){
-//		Business result = service.queryBusiness(keywords)
-//		return result ? Reconciliation.accurate(result) : Reconciliation.notFound()
-//	}
-//
-//	@GetMapping('/businessRaw')
-//	@ResponseBody
-//	public ResponseEntity<String> businessRaw(@RequestParam('q') String keywords){
-//		String result = service.queryPlace(keywords)
-//		return StringUtils.isNotBlank(result) ? Reconciliation.accurate(result) : Reconciliation.notFound()
-//	}
-//
-//	@GetMapping('/hospital')
-//	@ResponseBody
-//	public ResponseEntity<Reconciliation> hospital(@RequestParam('q') String keywords){
-//
-//		return businessInception(keywords, Type.hospital, Type.health);
-//	}
-//
-//	@GetMapping('/practice')
-//	@ResponseBody
-//	public ResponseEntity<Reconciliation> practice(@RequestParam('q') String keywords){
-//
-//		return businessInception(keywords, Type.hospital, Type.health);
-//	}
-//
-//	@GetMapping('/physician')
-//	@ResponseBody
-//	public ResponseEntity<Reconciliation> physician(@RequestParam('q') String keywords){
-//		return doctorInception(keywords, Type.doctor);
-//	}
+	//	private ResponseEntity<Reconciliation> businessInception(String keywords, Type... businessTypes){
+	//		Type businessType = businessTypes[0]
+	//		Business result = service.queryBusiness(businessType, keywords)
+	//		if(result){
+	//			return Reconciliation.accurate(result)
+	//		}else if(businessTypes){
+	//			String name = !keywords ?:  StringUtils.substring(keywords, 0, keywords.indexOf(','))
+	//			businessTypes.each { type ->
+	//				String confidentKeywords = StringUtils.replaceFirst(keywords, name, type.toString())
+	//				result = service.queryBusiness(businessType, confidentKeywords)
+	//				if(result){
+	//					return
+	//				}
+	//			}
+	//			if(result){
+	//				return Reconciliation.confident(result)
+	//			}
+	//		}
+	//		String possibleKeywords = StringUtils.substring(keywords, keywords.indexOf(',')+1)
+	//		result = service.queryBusiness(businessType, possibleKeywords)
+	//		return result ? Reconciliation.possible(result) : Reconciliation.notFound()
+	//	}
+	//
+	//	private ResponseEntity<Reconciliation> doctorInception(String keywords, Type... businessTypes){
+	//		Type businessType = businessTypes[0]
+	//		Business result = service.queryPhysician(keywords)
+	//		if(result){
+	//			return Reconciliation.accurate(result)
+	//		}else if(businessTypes){
+	//			String name = !keywords ?:  StringUtils.substring(keywords, 0, keywords.indexOf(','))
+	//			businessTypes.each { type ->
+	//				String confidentKeywords = StringUtils.replaceFirst(keywords, name, type.toString())
+	//				result = service.queryPhysician(confidentKeywords)
+	//				if(result){
+	//					return
+	//				}
+	//			}
+	//			if(result){
+	//				return Reconciliation.confident(result)
+	//			}
+	//		}
+	//		String possibleKeywords = StringUtils.substring(keywords, keywords.indexOf(',')+1)
+	//		result = service.queryPhysician( possibleKeywords)
+	//		return result ? Reconciliation.possible(result) : Reconciliation.notFound()
+	//	}
+	//
+	//	@GetMapping('/business')
+	//	@ResponseBody
+	//	public ResponseEntity<Reconciliation> business(@RequestParam('q') String keywords){
+	//		Business result = service.queryBusiness(keywords)
+	//		return result ? Reconciliation.accurate(result) : Reconciliation.notFound()
+	//	}
+	//
+	//	@GetMapping('/businessRaw')
+	//	@ResponseBody
+	//	public ResponseEntity<String> businessRaw(@RequestParam('q') String keywords){
+	//		String result = service.queryPlace(keywords)
+	//		return StringUtils.isNotBlank(result) ? Reconciliation.accurate(result) : Reconciliation.notFound()
+	//	}
+	//
+	//	@GetMapping('/hospital')
+	//	@ResponseBody
+	//	public ResponseEntity<Reconciliation> hospital(@RequestParam('q') String keywords){
+	//
+	//		return businessInception(keywords, Type.hospital, Type.health);
+	//	}
+	//
+	//	@GetMapping('/practice')
+	//	@ResponseBody
+	//	public ResponseEntity<Reconciliation> practice(@RequestParam('q') String keywords){
+	//
+	//		return businessInception(keywords, Type.hospital, Type.health);
+	//	}
+	//
+	//	@GetMapping('/physician')
+	//	@ResponseBody
+	//	public ResponseEntity<Reconciliation> physician(@RequestParam('q') String keywords){
+	//		return doctorInception(keywords, Type.doctor);
+	//	}
 }
 
 

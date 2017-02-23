@@ -1,7 +1,5 @@
 package io.tronbot.dc.domain
 
-import javax.persistence.Access
-import javax.persistence.AccessType
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
@@ -19,7 +17,6 @@ import io.tronbot.dc.common.json.JsonPathElement
  * @date Feb 22, 2017
  */
 @Entity
-@Access(AccessType.FIELD)
 @Table(indexes = [@Index(name = 'IDX_PLACE', columnList = 'placeId')])
 @JsonPathElement('$.result')
 class Place {
@@ -63,7 +60,6 @@ class Place {
 	Double longitude
 	@JsonPathElement(value='$.rating', interpreter=DoubleInterpreter.class)
 	Double rating
-	Date timestamp = new Date()
 
 	enum Type{
 		accounting,

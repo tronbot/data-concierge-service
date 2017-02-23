@@ -30,7 +30,7 @@ public class RequestHistoryStore extends MapStoreAdapter<String, Map<String, Obj
 
 	@Override
 	public Map<String, Object> load(String key) {
-		RequestHistory reqHis = repository.findByRequest(key)
+		RequestHistory reqHis = repository.findOneByRequest(key)
 		return reqHis ? jsonHelper.stringToMap(reqHis.getResponse()) : null
 	}
 
@@ -44,7 +44,7 @@ public class RequestHistoryStore extends MapStoreAdapter<String, Map<String, Obj
 		String value = jsonHelper.mapToString(json);
 		if(value){
 			RequestHistory his = new RequestHistory(key, value)
-			emitter.saveRequestHistory(his)
+			emitter.saveOrUpdateRequestHistory(his)
 		}else{
 			log.warn "Unable to resolve : ${key}"
 		}

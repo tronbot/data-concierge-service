@@ -4,6 +4,7 @@ import org.springframework.cloud.stream.messaging.Source
 import org.springframework.integration.annotation.Gateway
 import org.springframework.integration.annotation.MessagingGateway
 
+import io.tronbot.dc.domain.Hospital
 import io.tronbot.dc.domain.Place
 import io.tronbot.dc.domain.RequestHistory
 
@@ -13,12 +14,16 @@ import io.tronbot.dc.domain.RequestHistory
  */
 @MessagingGateway
 interface Emitter{
-//	@Gateway(requestChannel = Source.OUTPUT)
-//	void saveBusiness(Business business)
+	public static final String saveOrUpdateRequestHistory = 'saveOrUpdateRequestHistory'
+	public static final String saveOrUpdatePlace = 'saveOrUpdatePlace'
+	public static final String saveOrUpdateHospital = 'saveOrUpdateHospital'
 
-	@Gateway(requestChannel = Source.OUTPUT)
-	void saveRequestHistory(RequestHistory requestHistory)
+	@Gateway(requestChannel = saveOrUpdateRequestHistory)
+	void saveOrUpdateRequestHistory(RequestHistory requestHistory)
 
-	@Gateway(requestChannel = Source.OUTPUT)
-	void saveOrUpdatePlace(Place place)
+	@Gateway(requestChannel = saveOrUpdatePlace)
+	Place saveOrUpdatePlace(Place place)
+
+	@Gateway(requestChannel = saveOrUpdateHospital)
+	Hospital saveOrUpdateHospital(Hospital hospital)
 }
