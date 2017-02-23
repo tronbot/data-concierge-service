@@ -38,14 +38,14 @@ class JsonHelper{
 	}
 
 	public <T> T from(Map<String, Object> json, T obj) {
-		return jsonPathReflector.from(mapToString(json), obj);
+		return from(mapToString(json), obj);
 	}
 
-	public String read(String json, String jsonPath, Predicate... filters) {
+	public <T> T read(String json, String jsonPath, Predicate... filters) {
 		return jsonPathReflector.read(json, jsonPath, filters);
 	}
 
-	public String read(Map<String, Object> json, String jsonPath, Predicate... filters) {
-		return jsonPathReflector.read(mapToString(json), jsonPath, filters);
+	public <T> T read(Map<String, Object> json, String jsonPath, Predicate... filters) {
+		return read(mapToString(json), jsonPath, filters);
 	}
 }

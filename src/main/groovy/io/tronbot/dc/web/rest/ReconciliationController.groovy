@@ -1,6 +1,5 @@
 package io.tronbot.dc.web.rest
 
-import org.apache.commons.lang3.StringUtils
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -13,8 +12,6 @@ import org.springframework.web.bind.annotation.RestController
 
 import groovy.util.logging.Log4j
 import io.tronbot.dc.client.NPIQuery
-import io.tronbot.dc.domain.Business
-import io.tronbot.dc.domain.Business.Type
 import io.tronbot.dc.dto.Reconciliation
 import io.tronbot.dc.service.ReconciliationService
 
@@ -58,6 +55,13 @@ class ReconciliationController {
 		Object result = service.queryNpi(query)
 		return result ? Reconciliation.accurate(result) : Reconciliation.notFound()
 	}
+	
+	@GetMapping('/places')
+	public @ResponseBody ResponseEntity places(@RequestParam('q') String keywords){
+		Object result = service.places(keywords)
+		return result ? Reconciliation.accurate(result) : Reconciliation.notFound()
+	}
+
 
 
 //	private ResponseEntity<Reconciliation> businessInception(String keywords, Type... businessTypes){

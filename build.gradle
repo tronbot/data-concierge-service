@@ -54,6 +54,7 @@ dependencies {
 	compile("com.zaxxer:HikariCP") {
         exclude(module: "tools")
     }
+    compile("commons-beanutils:commons-beanutils:1.9.3")
     
 	runtime("com.h2database:h2")
 	

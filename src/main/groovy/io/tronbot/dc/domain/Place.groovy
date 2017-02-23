@@ -3,8 +3,6 @@ package io.tronbot.dc.domain
 import javax.persistence.Access
 import javax.persistence.AccessType
 import javax.persistence.Entity
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
 import javax.persistence.Id
@@ -13,60 +11,59 @@ import javax.persistence.Table
 
 import io.tronbot.dc.common.json.ArrayToSingleInterpreter
 import io.tronbot.dc.common.json.ArrayToStringInterpreter
+import io.tronbot.dc.common.json.DoubleInterpreter
 import io.tronbot.dc.common.json.JsonPathElement
-import io.tronbot.dc.domain.Business.Type
-
 
 /**
- * @author <a href='mailto:juanyo
- import com.jayway.jsonpath.JsonPathng.zhang@gmail.com'>Juanyong Zhang</a> 
- * @date Feb 6, 2017
+ * @author <a href="mailto:juanyong.zhang@gmail.com">Juanyong Zhang</a> 
+ * @date Feb 22, 2017
  */
 @Entity
 @Access(AccessType.FIELD)
-@Table(indexes = [@Index(name = 'IDX_BIZ', columnList = 'placeId')])
-public class Business{
+@Table(indexes = [@Index(name = 'IDX_PLACE', columnList = 'placeId')])
+@JsonPathElement('$.result')
+class Place {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	Long id
 	//	@JsonProperty('status')
-	@JsonPathElement('$.result.place_id')
+	@JsonPathElement('$.place_id')
 	String placeId
-	@JsonPathElement('$.result.name')
+	@JsonPathElement('$.name')
 	String name
-	@JsonPathElement('$.result.website')
+	@JsonPathElement('$.website')
 	String website
-	@JsonPathElement('$.result.url')
+	@JsonPathElement('$.url')
 	String googleMapURL
-	@JsonPathElement('$.result.formatted_phone_number')
+	@JsonPathElement('$.formatted_phone_number')
 	String phone
-	@JsonPathElement('$.result.formatted_address')
+	@JsonPathElement('$.formatted_address')
 	String address
-	@JsonPathElement(value = '$.result.address_components[?(\'street_number\' in @.types )].long_name', interpreter=ArrayToSingleInterpreter.class)
+	@JsonPathElement(value = '$.address_components[?(\'street_number\' in @.types )].long_name', interpreter=ArrayToSingleInterpreter.class)
 	String streetNumber
-	@JsonPathElement(value = '$.result.address_components[?(\'route\' in @.types )].long_name', interpreter=ArrayToSingleInterpreter.class)
+	@JsonPathElement(value = '$.address_components[?(\'route\' in @.types )].long_name', interpreter=ArrayToSingleInterpreter.class)
 	String streetName
-	@JsonPathElement(value = '$.result.address_components[?(\'locality\' in @.types )].long_name', interpreter=ArrayToSingleInterpreter.class)
+	@JsonPathElement(value = '$.address_components[?(\'locality\' in @.types )].long_name', interpreter=ArrayToSingleInterpreter.class)
 	String city
-	@JsonPathElement(value = '$.result.address_components[?(\'administrative_area_level_2\' in @.types )].long_name', interpreter=ArrayToSingleInterpreter.class)
+	@JsonPathElement(value = '$.address_components[?(\'administrative_area_level_2\' in @.types )].long_name', interpreter=ArrayToSingleInterpreter.class)
 	String county
-	@JsonPathElement(value = '$.result.address_components[?(\'administrative_area_level_1\' in @.types )].short_name', interpreter=ArrayToSingleInterpreter.class)
+	@JsonPathElement(value = '$.address_components[?(\'administrative_area_level_1\' in @.types )].short_name', interpreter=ArrayToSingleInterpreter.class)
 	String state
-	@JsonPathElement(value = '$.result.address_components[?(\'postal_code\' in @.types )].long_name', interpreter=ArrayToSingleInterpreter.class)
+	@JsonPathElement(value = '$.address_components[?(\'postal_code\' in @.types )].long_name', interpreter=ArrayToSingleInterpreter.class)
 	String postalCode
-	@JsonPathElement(value = '$.result.address_components[?(\'postal_code_suffix\' in @.types )].long_name', interpreter=ArrayToSingleInterpreter.class)
+	@JsonPathElement(value = '$.address_components[?(\'postal_code_suffix\' in @.types )].long_name', interpreter=ArrayToSingleInterpreter.class)
 	String postalCodeSuffix
-	@JsonPathElement(value = '$.result.address_components[?(\'country\' in @.types )].short_name', interpreter=ArrayToSingleInterpreter.class)
+	@JsonPathElement(value = '$.address_components[?(\'country\' in @.types )].short_name', interpreter=ArrayToSingleInterpreter.class)
 	String country
-	@JsonPathElement(value = '$.result.types', interpreter=ArrayToStringInterpreter.class)
+	@JsonPathElement(value = '$.types', interpreter=ArrayToStringInterpreter.class)
 	String types
-	@JsonPathElement('$.result.geometry.location.lat')
+	@JsonPathElement('$.geometry.location.lat')
 	Double latitude
-	@JsonPathElement('$.result.geometry.location.lng')
+	@JsonPathElement('$.geometry.location.lng')
 	Double longitude
+	@JsonPathElement(value='$.rating', interpreter=DoubleInterpreter.class)
+	Double rating
 	Date timestamp = new Date()
-	@Enumerated(EnumType.STRING)
-	Type type
 
 	enum Type{
 		accounting,
@@ -207,12 +204,9 @@ public class Business{
 			}
 			return null
 		}
-		
+
 		public String toString(){
 			return this.name()
 		}
 	}
 }
-
-
-

@@ -1,17 +1,12 @@
 package io.tronbot.dc.service
 
-import org.apache.commons.lang3.StringUtils
 import org.springframework.stereotype.Service
-
-import com.jayway.jsonpath.PathNotFoundException
 
 import groovy.util.logging.Log4j
 import io.tronbot.dc.client.GooglePlacesClient
 import io.tronbot.dc.client.NPIQuery
 import io.tronbot.dc.client.NPIRegistryClientHelper
-import io.tronbot.dc.dao.BusinessRepository
-import io.tronbot.dc.domain.Business
-import io.tronbot.dc.domain.Business.Type
+import io.tronbot.dc.domain.Place
 import io.tronbot.dc.helper.JsonHelper
 import io.tronbot.dc.messaging.Emitter
 
@@ -25,77 +20,105 @@ public class ReconciliationService{
 	private final GooglePlacesClient googlePlaces
 	private final NPIRegistryClientHelper npiRegistry
 	private final JsonHelper json
-	private final BusinessRepository businessRepository
 	private final Emitter emitter
 
-	ReconciliationService(GooglePlacesClient googlePlaces, NPIRegistryClientHelper npiRegistry,JsonHelper json, BusinessRepository businessRepository, Emitter emitter){
+	ReconciliationService(GooglePlacesClient googlePlaces, NPIRegistryClientHelper npiRegistry,JsonHelper json, Emitter emitter){
 		this.googlePlaces = googlePlaces
 		this.npiRegistry = npiRegistry
 		this.json = json
 		this.emitter = emitter
-		this.businessRepository = businessRepository
 	}
 
-//	/**
-//	 * 
-//	 * @param keywords - comma separated string, business name, address... 
-//	 * @return
-//	 */
-//	public Business queryBusiness(String keywords){
-//		return queryBusiness(guessBusinessType(keywords), keywords)
-//	}
-//
-//	public Business queryBusiness(Type businessType, String keywords){
-//		Business result
-//		String resp = query(keywords)
-//		if(StringUtils.isNotBlank(resp)){
-//			result = json.from(query(keywords), new Business())
-//			result.setType(businessType)
-//			emitter.saveBusiness(result)
-//		}
-//		return result
-//	}
-//
-//	private Type guessBusinessType(String q){
-//		String k = !q ?:  StringUtils.substring(q, 0, q.indexOf(','))
-//		return Type.valueOfIgnoreCase(k)
-//	}
-//
-//	public Business queryPhysician(String keywords){
-//		Business business = queryBusiness(Type.doctor, keywords)
-//		return
-//	}
+	//	/**
+	//	 *
+	//	 * @param keywords - comma separated string, business name, address...
+	//	 * @return
+	//	 */
+	//	public Business queryBusiness(String keywords){
+	//		return queryBusiness(guessBusinessType(keywords), keywords)
+	//	}
+	//
+	//	public Business queryBusiness(Type businessType, String keywords){
+	//		Business result
+	//		String resp = query(keywords)
+	//		if(StringUtils.isNotBlank(resp)){
+	//			result = json.from(query(keywords), new Business())
+	//			result.setType(businessType)
+	//			emitter.saveBusiness(result)
+	//		}
+	//		return result
+	//	}
+	//
+	//	private Type guessBusinessType(String q){
+	//		String k = !q ?:  StringUtils.substring(q, 0, q.indexOf(','))
+	//		return Type.valueOfIgnoreCase(k)
+	//	}
+	//
+	//	public Business queryPhysician(String keywords){
+	//		Business business = queryBusiness(Type.doctor, keywords)
+	//		return
+	//	}
+	//	/**
+	//	 * @param keywords
+	//	 * @return JSON String of google place detail
+	//	 */
+	//	public String queryPlace(String keywords){
+	//		String q = groomKeywords(keywords)
+	//				if(!q){
+	//					return null
+	//				}
+	//		String place = null
+	//				try {
+	//					String placeId = json.read(googlePlaces.query(q), '$.results[0].place_id')
+	//							place = googlePlaces.detail(placeId)
+	//				} catch (PathNotFoundException e) {
+	//					log.warn "Unable to resolve : ${q}"
+	//				}
+	//		return place
+	//	}
+
+
 
 	/**
 	 * @param keywords
-	 * @return JSON String of google place detail
+	 * @return List of google places
 	 */
-	public String queryPlace(String keywords){
-		String q = groomKeywords(keywords)
-		if(!q){
-			return null
+	public List<Place> places(String keywords){
+		List<Place> places = new ArrayList()
+		List<String> placeIds =  json.read(queryPlaces(keywords), '$.results[*].place_id')
+		if(placeIds){
+			log.info("${placeIds.size()} results found for ${keywords}")
+			placeIds.each{ pid ->
+				places.add(placeDetail(pid))
+			}
+		}else{
+			log.warn("Not result found for : ${keywords}")
 		}
-		String place = null
-		try {
-			String placeId = json.read(googlePlaces.query(q), '$.results[0].place_id')
-			place = googlePlaces.detail(placeId)
-		} catch (PathNotFoundException e) {
-			log.warn "Unable to resolve : ${q}"
-		}
+		return places;
+	}
+
+	/**
+	 * @param placeid
+	 * @return google place detail
+	 */
+	public Place placeDetail(String pid){
+		Place place = json.from(queryPlaceDetail(pid), new Place())
+		emitter.saveOrUpdatePlace(place)
 		return place
 	}
 
-	/**
-	 * @param keywords
-	 * @return JSON String of google place detail
-	 */
-	public Map<String, Object>  queryPlaces(String keywords){
-		String q = groomKeywords(keywords)
-		return q ? googlePlaces.query(q, Type.hospital) : null;
-	}
 
 	/**
 	 * @param keywords
+	 * @return JSON String of google places
+	 */
+	public Map<String, Object>  queryPlaces(String keywords){
+		keywords = groomKeywords(keywords)
+		return keywords ? googlePlaces.query(keywords) : null;
+	}
+
+	/**
+	 * @param placeId
 	 * @return JSON String of google place detail
 	 */
 	public Map<String, Object> queryPlaceDetail(String placeId){

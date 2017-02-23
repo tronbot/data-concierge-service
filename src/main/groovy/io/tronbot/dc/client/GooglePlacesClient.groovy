@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 
 import io.tronbot.dc.config.GooglePlacesFeignConfiguration
-import io.tronbot.dc.domain.Business.Type
+import io.tronbot.dc.domain.Place.Type
 
 
 

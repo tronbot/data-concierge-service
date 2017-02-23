@@ -1,7 +1,5 @@
 package io.tronbot.dc.client
 
-import java.util.Map
-
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.cloud.netflix.feign.FeignClient
 import org.springframework.http.MediaType
@@ -9,7 +7,8 @@ import org.springframework.stereotype.Repository
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 
-import io.tronbot.dc.domain.Business
+import io.tronbot.dc.common.test.json.Business
+
 
 /**
  * @author <a href="mailto:juanyong.zhang@gmail.com">Juanyong Zhang</a> 
