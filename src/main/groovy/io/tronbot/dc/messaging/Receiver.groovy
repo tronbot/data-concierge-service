@@ -66,17 +66,16 @@ class Receiver implements Emitter{
 
 	@ServiceActivator(inputChannel=Emitter.saveOrUpdateHospital)
 	public Hospital saveOrUpdateHospital(Hospital hospital) {
-		//		log.debug "Saving Hospital: ${ToStringBuilder.reflectionToString(hospital)}"
-		//		Hospital h = hospitalRepository.findOneByPlaceId(hospital.getPlaceId())
-		//		if(h){
-		////			Long id = h.getId()
-		////			BeanUtils.copyProperties(h, hospital)
-		////			h.setId(id)
-		////			return hospitalRepository.save(h)
-		//			return h
-		//		}else{
-		//			return hospitalRepository.save(hospital)
-		//		}
-		return hospital
+		log.debug "Saving Hospital: ${ToStringBuilder.reflectionToString(hospital)}"
+		Hospital h = hospitalRepository.findOneByPlaceId(hospital.getPlaceId())
+		if(h){
+			//Update Hospital
+			hospital.setId(h.getId())
+			BeanUtils.copyProperties(h, hospital)
+			return hospitalRepository.save(h)
+		}else{
+			//Save new Hospital
+			return hospitalRepository.save(hospital)
+		}
 	}
 }
