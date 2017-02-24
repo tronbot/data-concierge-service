@@ -51,15 +51,6 @@ public class NPIQuery{
 	Integer limit = 20
 	Integer skip
 	Boolean pretty = false
-
-	public static NPIQuery fromBusiness(Business business){
-		NPIQuery q = new NPIQuery()
-		//		q.organizationName = business.getName()
-		q.city = business.getCity()
-		q.state = business.getState()
-		q.postalCode = business.getPostalCode()
-		return q
-	}
 }
 
 @Repository
