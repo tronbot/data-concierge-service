@@ -1,10 +1,6 @@
 package io.tronbot.dc.domain
 
 import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.ManyToOne
 import javax.persistence.Transient
 
 import io.tronbot.dc.domain.Place.Type
@@ -15,11 +11,6 @@ import io.tronbot.dc.domain.Place.Type
  */
 @Entity
 class Hospital extends Place{
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	Long id
-	//	@ManyToOne
-	//	Place place
 	@Transient
 	final Type type = Type.hospital
 

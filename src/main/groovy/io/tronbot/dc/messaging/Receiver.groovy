@@ -1,5 +1,7 @@
 package io.tronbot.dc.messaging
 
+import javax.transaction.Transactional
+
 import org.apache.commons.beanutils.BeanUtils
 import org.apache.commons.lang3.builder.ToStringBuilder
 import org.springframework.integration.annotation.MessageEndpoint
@@ -19,7 +21,8 @@ import io.tronbot.dc.domain.RequestHistory
  */
 @MessageEndpoint
 @Log4j
-class Receiver implements  Emitter{
+@Transactional
+class Receiver implements Emitter{
 	private final RequestHistoryRepository requestHistoryRepository
 	private final PlaceRepository placeRepository
 	private final HospitalRepository hospitalRepository
@@ -33,10 +36,16 @@ class Receiver implements  Emitter{
 
 	@ServiceActivator(inputChannel=Emitter.saveOrUpdateRequestHistory)
 	public RequestHistory saveOrUpdateRequestHistory(RequestHistory requestHistory) {
-		RequestHistory exists = requestHistoryRepository.findOneByRequest(requestHistory.getRequest())
-		if(!exists){
-			log.debug "Saving RequestHistory: ${requestHistory.getRequest()}"
-			requestHistoryRepository.save(requestHistory)
+		log.debug "Saving RequestHistory: ${requestHistory.getRequest()}"
+		RequestHistory r = requestHistoryRepository.findOneByRequest(requestHistory.getRequest())
+		if(r){
+			//Update request history
+			requestHistory.setId(r.getId())
+			BeanUtils.copyProperties(r, requestHistory)
+			return requestHistoryRepository.save(r)
+		}else{
+			//Save new request history
+			return requestHistoryRepository.save(requestHistory)
 		}
 	}
 
@@ -45,23 +54,29 @@ class Receiver implements  Emitter{
 		log.debug "Saving Place: ${ToStringBuilder.reflectionToString(place)}"
 		Place p = placeRepository.findOneByPlaceId(place.getPlaceId())
 		if(p){
-			Long id = p.getId()
+			//Update place
+			place.setId(p.getId())
 			BeanUtils.copyProperties(p, place)
-			p.setId(id)
 			return placeRepository.save(p)
 		}else{
+			//Save new place
 			return placeRepository.save(place)
 		}
 	}
 
 	@ServiceActivator(inputChannel=Emitter.saveOrUpdateHospital)
 	public Hospital saveOrUpdateHospital(Hospital hospital) {
-		log.debug "Saving Hospital: ${ToStringBuilder.reflectionToString(hospital)}"
-		Hospital h = hospitalRepository.findOneByPlaceId(hospital.getPlaceId())
-		if(h){
-			return h
-		}else{
-			return hospitalRepository.save(hospital)
-		}
+		//		log.debug "Saving Hospital: ${ToStringBuilder.reflectionToString(hospital)}"
+		//		Hospital h = hospitalRepository.findOneByPlaceId(hospital.getPlaceId())
+		//		if(h){
+		////			Long id = h.getId()
+		////			BeanUtils.copyProperties(h, hospital)
+		////			h.setId(id)
+		////			return hospitalRepository.save(h)
+		//			return h
+		//		}else{
+		//			return hospitalRepository.save(hospital)
+		//		}
+		return hospital
 	}
 }

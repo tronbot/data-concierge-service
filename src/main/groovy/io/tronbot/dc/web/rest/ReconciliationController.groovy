@@ -75,6 +75,16 @@ class ReconciliationController {
 		Object result = service.hospitals(keywords)
 		return result ? Reconciliation.accurate(result) : Reconciliation.notFound()
 	}
+	
+	/**
+	 * @param keywords - firstname lastname, street, city, state, zip
+	 * @return json list of hospitals
+	 */
+	@GetMapping('/physicians')
+	public @ResponseBody ResponseEntity physicians(@RequestParam('q') String keywords){
+		Object result = service.physicians(keywords)
+		return result ? Reconciliation.accurate(result) : Reconciliation.notFound()
+	}
 
 
 	//	private ResponseEntity<Reconciliation> businessInception(String keywords, Type... businessTypes){

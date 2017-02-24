@@ -1,8 +1,9 @@
 package io.tronbot.dc.messaging
 
-import org.springframework.cloud.stream.messaging.Source
 import org.springframework.integration.annotation.Gateway
 import org.springframework.integration.annotation.MessagingGateway
+import org.springframework.scheduling.annotation.Async
+import org.springframework.stereotype.Component
 
 import io.tronbot.dc.domain.Hospital
 import io.tronbot.dc.domain.Place
@@ -18,12 +19,16 @@ interface Emitter{
 	public static final String saveOrUpdatePlace = 'saveOrUpdatePlace'
 	public static final String saveOrUpdateHospital = 'saveOrUpdateHospital'
 
+	@Async
 	@Gateway(requestChannel = saveOrUpdateRequestHistory)
 	RequestHistory saveOrUpdateRequestHistory(RequestHistory requestHistory)
 
+	@Async
 	@Gateway(requestChannel = saveOrUpdatePlace)
 	Place saveOrUpdatePlace(Place place)
 
+	@Async
 	@Gateway(requestChannel = saveOrUpdateHospital)
 	Hospital saveOrUpdateHospital(Hospital hospital)
 }
+

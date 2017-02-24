@@ -32,9 +32,6 @@ public class ReconciliationService{
 		this.emitter = emitter
 	}
 
-
-
-
 	/**
 	 * @param keywords - business name, street, city, state, zip
 	 * @return List of hospital

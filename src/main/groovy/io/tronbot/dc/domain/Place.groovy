@@ -9,6 +9,8 @@ import javax.persistence.Inheritance
 import javax.persistence.InheritanceType
 import javax.persistence.Table
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+
 import io.tronbot.dc.common.json.ArrayToSingleInterpreter
 import io.tronbot.dc.common.json.ArrayToStringInterpreter
 import io.tronbot.dc.common.json.DoubleInterpreter
@@ -25,6 +27,7 @@ import io.tronbot.dc.common.json.JsonPathElement
 class Place {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
+	@JsonIgnore
 	Long id
 	//	@JsonProperty('status')
 	@JsonPathElement('$.place_id')
@@ -39,21 +42,21 @@ class Place {
 	String phone
 	@JsonPathElement('$.formatted_address')
 	String address
-	@JsonPathElement(value = '$.address_components[?(\'street_number\' in @.types )].long_name', interpreter=ArrayToSingleInterpreter.class)
+	@JsonPathElement(value = '$.address_components[?("street_number" in @.types )].long_name', interpreter=ArrayToSingleInterpreter.class)
 	String streetNumber
-	@JsonPathElement(value = '$.address_components[?(\'route\' in @.types )].long_name', interpreter=ArrayToSingleInterpreter.class)
+	@JsonPathElement(value = '$.address_components[?("route" in @.types )].long_name', interpreter=ArrayToSingleInterpreter.class)
 	String streetName
-	@JsonPathElement(value = '$.address_components[?(\'locality\' in @.types )].long_name', interpreter=ArrayToSingleInterpreter.class)
+	@JsonPathElement(value = '$.address_components[?("locality" in @.types )].long_name', interpreter=ArrayToSingleInterpreter.class)
 	String city
-	@JsonPathElement(value = '$.address_components[?(\'administrative_area_level_2\' in @.types )].long_name', interpreter=ArrayToSingleInterpreter.class)
+	@JsonPathElement(value = '$.address_components[?("administrative_area_level_2" in @.types )].long_name', interpreter=ArrayToSingleInterpreter.class)
 	String county
-	@JsonPathElement(value = '$.address_components[?(\'administrative_area_level_1\' in @.types )].short_name', interpreter=ArrayToSingleInterpreter.class)
+	@JsonPathElement(value = '$.address_components[?("administrative_area_level_1" in @.types )].short_name', interpreter=ArrayToSingleInterpreter.class)
 	String state
-	@JsonPathElement(value = '$.address_components[?(\'postal_code\' in @.types )].long_name', interpreter=ArrayToSingleInterpreter.class)
+	@JsonPathElement(value = '$.address_components[?("postal_code" in @.types )].long_name', interpreter=ArrayToSingleInterpreter.class)
 	String postalCode
-	@JsonPathElement(value = '$.address_components[?(\'postal_code_suffix\' in @.types )].long_name', interpreter=ArrayToSingleInterpreter.class)
+	@JsonPathElement(value = '$.address_components[?("postal_code_suffix" in @.types )].long_name', interpreter=ArrayToSingleInterpreter.class)
 	String postalCodeSuffix
-	@JsonPathElement(value = '$.address_components[?(\'country\' in @.types )].short_name', interpreter=ArrayToSingleInterpreter.class)
+	@JsonPathElement(value = '$.address_components[?("country" in @.types )].short_name', interpreter=ArrayToSingleInterpreter.class)
 	String country
 	@JsonPathElement(value = '$.types', interpreter=ArrayToStringInterpreter.class)
 	String types

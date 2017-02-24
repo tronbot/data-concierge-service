@@ -102,8 +102,8 @@ public class CacheConfiguration {
 		// mapConfig.getMapStoreConfig().setClassName('io.tronbot.dc.service.RequestHistoryStore')
 		mapConfig.getMapStoreConfig().setImplementation(store)
 		if (env.acceptsProfiles(Constants.SPRING_PROFILE_DEVELOPMENT)) {
-			mapConfig.getMapStoreConfig().setWriteBatchSize(100)
-			mapConfig.getMapStoreConfig().setWriteDelaySeconds(30)
+			mapConfig.getMapStoreConfig().setWriteBatchSize(10)
+			mapConfig.getMapStoreConfig().setWriteDelaySeconds(5)
 		} else {
 			mapConfig.getMapStoreConfig().setWriteBatchSize(1000)
 			mapConfig.getMapStoreConfig().setWriteDelaySeconds(60)
