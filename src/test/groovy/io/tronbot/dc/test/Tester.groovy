@@ -69,6 +69,7 @@ class Tester {
 		println Objects.equals(places[0], places[1])
 	}
 
+	@Test
 	public void testNPIRegistry(){
 		//jsonize the NPIQuery
 		NPIQuery q = new NPIQuery()
@@ -77,6 +78,7 @@ class Tester {
 		q.setCity('INDIO')
 		q.setState('CA')
 		q.setPostalCode('92201')
+		q.setOrganizationName('HWANG CHORNG LII')
 		String npiQuery = gson.toJson(q)
 		println npiQuery
 
@@ -88,21 +90,21 @@ class Tester {
 			println ReflectionToStringBuilder.toString(p)
 		}
 	}
-	@Test
+
 	public void tempTest(){
 		String keywords = 'CHORNG LII , HWANG , 81709 DR CARREON BLVD, INDIO, CA, 92201'
 		keywords = ReconciliationService.groomKeywords(keywords);
-		
+
 		String firstName = keywords.split(',')[0].trim()
 		String lastName = keywords.split(',')[1].trim()
-		String addressKeyword = 
-		println firstName
+		String addressKeyword =
+				println firstName
 		println lastName
 		println addressKeyword
-		
-		def array = ['111','222','333']
+
+		def array = ['111', '222', '333']
 		println array?.find()
-		
-		
+
+
 	}
 }
