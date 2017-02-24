@@ -9,9 +9,11 @@ import org.springframework.integration.annotation.ServiceActivator
 
 import groovy.util.logging.Log4j
 import io.tronbot.dc.dao.HospitalRepository
+import io.tronbot.dc.dao.PhysicianRepository
 import io.tronbot.dc.dao.PlaceRepository
 import io.tronbot.dc.dao.RequestHistoryRepository
 import io.tronbot.dc.domain.Hospital
+import io.tronbot.dc.domain.Physician
 import io.tronbot.dc.domain.Place
 import io.tronbot.dc.domain.RequestHistory
 
@@ -26,18 +28,20 @@ class Receiver implements Emitter{
 	private final RequestHistoryRepository requestHistoryRepository
 	private final PlaceRepository placeRepository
 	private final HospitalRepository hospitalRepository
+	private final PhysicianRepository physicianRepository
 
 
-	public Receiver(RequestHistoryRepository requestHistoryRepository, PlaceRepository placeRepository, HospitalRepository hospitalRepository) {
+	public Receiver(RequestHistoryRepository requestHistoryRepository, PlaceRepository placeRepository, HospitalRepository hospitalRepository, PhysicianRepository physicianRepository) {
 		this.requestHistoryRepository = requestHistoryRepository
 		this.placeRepository = placeRepository
 		this.hospitalRepository = hospitalRepository
+		this.physicianRepository = physicianRepository
 	}
 
 	@ServiceActivator(inputChannel=Emitter.saveOrUpdateRequestHistory)
 	public RequestHistory saveOrUpdateRequestHistory(RequestHistory requestHistory) {
 		log.debug "Saving RequestHistory: ${requestHistory.getRequest()}"
-		RequestHistory r = requestHistoryRepository.findOneByRequest(requestHistory.getRequest())
+		RequestHistory r = requestHistoryRepository.findByRequest(requestHistory.getRequest())?.find()
 		if(r){
 			//Update request history
 			requestHistory.setId(r.getId())
@@ -52,7 +56,7 @@ class Receiver implements Emitter{
 	@ServiceActivator(inputChannel=Emitter.saveOrUpdatePlace)
 	public Place saveOrUpdatePlace(Place place) {
 		log.debug "Saving Place: ${ToStringBuilder.reflectionToString(place)}"
-		Place p = placeRepository.findOneByPlaceId(place.getPlaceId())
+		Place p = placeRepository.findByPlaceId(place.getPlaceId())?.find()
 		if(p){
 			//Update place
 			place.setId(p.getId())
@@ -67,15 +71,25 @@ class Receiver implements Emitter{
 	@ServiceActivator(inputChannel=Emitter.saveOrUpdateHospital)
 	public Hospital saveOrUpdateHospital(Hospital hospital) {
 		log.debug "Saving Hospital: ${ToStringBuilder.reflectionToString(hospital)}"
-		Hospital h = hospitalRepository.findOneByPlaceId(hospital.getPlaceId())
-		if(h){
-			//Update Hospital
-			hospital.setId(h.getId())
-			BeanUtils.copyProperties(h, hospital)
-			return hospitalRepository.save(h)
+		Place p = placeRepository.findByPlaceId(hospital.getPlaceId())?.find()
+		if(p){
+			hospital.setId(p.getId())
+		}
+		return hospitalRepository.save(hospital)
+	}
+
+	@ServiceActivator(inputChannel=Emitter.saveOrUpdatePhysician)
+	public Physician saveOrUpdatePhysician(Physician physician) {
+		log.debug "Saving Hospital: ${ToStringBuilder.reflectionToString(physician)}"
+		Physician p = physicianRepository.findByPlaceId(physician.getPlaceId())?.find()
+		if(p){
+			//Update Physician
+			physician.setId(p.getId())
+			BeanUtils.copyProperties(p, physician)
+			return physicianRepository.save(p)
 		}else{
-			//Save new Hospital
-			return hospitalRepository.save(hospital)
+			//Save new Physician
+			return physicianRepository.save(physician)
 		}
 	}
 }

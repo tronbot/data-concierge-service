@@ -16,7 +16,7 @@ interface RequestHistoryRepository extends JpaRepository<RequestHistory, Long>{
 
 	//	@Query('SELECT req FROM RequestHistory req WHERE req.request = :request ORDER BY req.timestamp DESC')
 	//	RequestHistory findOneByRequest(@Param('request') final String request)
-	RequestHistory findOneByRequest(final String request)
+	List<RequestHistory> findByRequest(final String request)
 
 	void deleteByRequest(String request)
 }

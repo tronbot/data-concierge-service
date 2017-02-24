@@ -1,6 +1,8 @@
 package io.tronbot.dc.dao
 
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 
 import io.tronbot.dc.domain.Place
 
@@ -12,6 +14,5 @@ import io.tronbot.dc.domain.Place
  * @date Feb 6, 2017
  */
 interface PlaceRepository extends JpaRepository<Place, Long>{
-	
-	Place findOneByPlaceId(String placeId);
+	List<Place> findByPlaceId(final String placeId);
 }

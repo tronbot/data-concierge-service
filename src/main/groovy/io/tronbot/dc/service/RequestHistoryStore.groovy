@@ -30,7 +30,7 @@ public class RequestHistoryStore extends MapStoreAdapter<String, Map<String, Obj
 
 	@Override
 	public Map<String, Object> load(String key) {
-		RequestHistory reqHis = repository.findOneByRequest(key)
+		RequestHistory reqHis = repository.findByRequest(key)?.find()
 		return reqHis ? jsonHelper.stringToMap(reqHis.getResponse()) : null
 	}
 

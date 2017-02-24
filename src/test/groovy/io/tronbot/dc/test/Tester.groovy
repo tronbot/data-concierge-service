@@ -31,7 +31,6 @@ class Tester {
 	static final JsonPathReflector jsonPathReflector = new JsonPathReflector(Configuration.defaultConfiguration())
 	static final JsonHelper jsonHelper = new JsonHelper(gson, jsonPathReflector)
 
-	@Test
 	public void testGooglePlaces(){
 		//Google Places
 		String keywords = "ucsd emer physicians thornton,9300 campus point dr,la jolla,ca"
@@ -70,7 +69,6 @@ class Tester {
 		println Objects.equals(places[0], places[1])
 	}
 
-	@Test
 	public void testNPIRegistry(){
 		//jsonize the NPIQuery
 		NPIQuery q = new NPIQuery()
@@ -89,6 +87,22 @@ class Tester {
 			Assert.assertTrue(StringUtils.equals(q.getLastName(),p.getLastName()));
 			println ReflectionToStringBuilder.toString(p)
 		}
-
+	}
+	@Test
+	public void tempTest(){
+		String keywords = 'CHORNG LII , HWANG , 81709 DR CARREON BLVD, INDIO, CA, 92201'
+		keywords = ReconciliationService.groomKeywords(keywords);
+		
+		String firstName = keywords.split(',')[0].trim()
+		String lastName = keywords.split(',')[1].trim()
+		String addressKeyword = 
+		println firstName
+		println lastName
+		println addressKeyword
+		
+		def array = ['111','222','333']
+		println array?.find()
+		
+		
 	}
 }
