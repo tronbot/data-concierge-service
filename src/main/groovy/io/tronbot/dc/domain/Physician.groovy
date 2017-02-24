@@ -4,6 +4,7 @@ import javax.persistence.Entity
 import javax.persistence.Transient
 
 import io.tronbot.dc.common.json.ArrayToSingleInterpreter
+import io.tronbot.dc.common.json.IntegerInterpreter
 import io.tronbot.dc.common.json.JsonPathElement
 import io.tronbot.dc.domain.Place.Type
 
@@ -13,7 +14,7 @@ import io.tronbot.dc.domain.Place.Type
  */
 @Entity
 class Physician extends Place{
-	@JsonPathElement('$.number')
+	@JsonPathElement(value='$.number', interpreter=IntegerInterpreter.class)
 	Integer npi
 	@JsonPathElement('$.basic.first_name')
 	String firstName
