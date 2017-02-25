@@ -13,6 +13,7 @@ import io.tronbot.dc.domain.Hospital
 import io.tronbot.dc.domain.Physician
 import io.tronbot.dc.domain.Place
 import io.tronbot.dc.domain.Place.Type
+import io.tronbot.dc.dto.Provider
 import io.tronbot.dc.helper.JsonHelper
 import io.tronbot.dc.messaging.Emitter
 
@@ -35,6 +36,22 @@ public class ReconciliationService{
 		this.emitter = emitter
 	}
 
+	/**
+	 * 
+	 * @param id - npi number
+	 * @return Physician
+	 */
+	private Provider npi(String id){
+		Provider provider  = null;
+		NPIQuery query = new NPIQuery()
+		query.setNumber(id)
+		Map<String, Object> npiJson = json.read(npiRegistry.query(query), '$.results[*]')?.find()
+		if(npiJson){
+			provider = json.from(npiJson, new Provider())
+		}
+		return provider
+	}
+
 
 	/**
 	 * @param keywords - firstname lastname, street, city, state, zip
@@ -49,7 +66,7 @@ public class ReconciliationService{
 		query.setState(state)
 		query.setPostalCode(postalCode)
 		List npiJson = json.read(npiRegistry.query(query), '$.results[*]')
-		npiJson.each{ npi ->
+		npiJson?.each{ npi ->
 			physicians.add(json.from(npi, new Physician()))
 		}
 		if(!npiJson){

@@ -55,7 +55,7 @@ class ReconciliationController {
 		Object result = service.queryNpi(query)
 		return result ? Reconciliation.accurate(result) : Reconciliation.notFound()
 	}
-	
+
 	/**
 	 * @param keywords - business name, street, city, state, zip
 	 * @return json list of google places
@@ -75,7 +75,7 @@ class ReconciliationController {
 		Object result = service.hospitals(keywords)
 		return result ? Reconciliation.accurate(result) : Reconciliation.notFound()
 	}
-	
+
 	/**
 	 * @param keywords - firstname lastname, street, city, state, zip
 	 * @return json list of hospitals
@@ -83,6 +83,13 @@ class ReconciliationController {
 	@GetMapping('/physicians')
 	public @ResponseBody ResponseEntity physicians(@RequestParam('q') String keywords){
 		Object result = service.physicians(keywords)
+		return result ? Reconciliation.accurate(result) : Reconciliation.notFound()
+	}
+
+
+	@GetMapping('/npi/{id}')
+	public @ResponseBody ResponseEntity npi(@PathVariable('id') String id){
+		Object result = service.npi(id)
 		return result ? Reconciliation.accurate(result) : Reconciliation.notFound()
 	}
 }
