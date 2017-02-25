@@ -3,6 +3,7 @@ package io.tronbot.dc.config
 import java.nio.file.Paths
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.cloud.client.ServiceInstance
 import org.springframework.cloud.client.discovery.DiscoveryClient
@@ -34,8 +35,20 @@ public class CacheConfiguration {
 	private Registration registration
 	@Autowired
 	private RequestHistoryStore store
-//	@Autowired
-//	private ResponseEntityStreamSerializer responseEntityStreamSerializer
+	//	@Autowired
+	//	private ResponseEntityStreamSerializer responseEntityStreamSerializer
+	@Value('${data-concierge.cache.hazelcast.port}')
+	private int port
+	@Value('${data-concierge.cache.hazelcast.backup-Count}')
+	private int backupCount
+	@Value('${data-concierge.cache.hazelcast.write-batch-size}')
+	private int writeBatchSize
+	@Value('${data-concierge.cache.hazelcast.write-delay}')
+	private int writeDelay
+	@Value('${data-concierge.cache.hazelcast.time-to-live-seconds}')
+	private int timeToLiveSecs
+	
+
 
 	@Bean
 	@Autowired
@@ -47,11 +60,11 @@ public class CacheConfiguration {
 		String serviceId = registration.getServiceId()
 		log.debug("Configuring Hazelcast clustering for instanceId: ${serviceId}")
 		// Network Config
-		config.getNetworkConfig().setPort(5701)
+		config.getNetworkConfig().setPort(port)
 		config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false)
 		config.getNetworkConfig().getJoin().getTcpIpConfig().setEnabled(true)
 		for (ServiceInstance instance : discoveryClient.getInstances(serviceId)) {
-			String clusterMember = "${instance.getHost()}:5701"
+			String clusterMember = "${instance.getHost()}:${port}"
 			log.debug("Adding Hazelcast (prod) cluster member ${clusterMember}")
 			config.getNetworkConfig().getJoin().getTcpIpConfig().addMember(clusterMember)
 		}
@@ -60,11 +73,6 @@ public class CacheConfiguration {
 		config.getHotRestartPersistenceConfig().setBaseDir(Paths.get(System.getenv('APPDATA'), serviceId).toFile())
 		config.getHotRestartPersistenceConfig().setValidationTimeoutSeconds(600)
 		config.getHotRestartPersistenceConfig().setDataLoadTimeoutSeconds(1200)
-		// Serializer
-		//		SerializerConfig sc = new SerializerConfig()
-		//				.setImplementation(responseEntityStreamSerializer)
-		//				.setTypeClass(ResponseEntity.class);
-		//		config.getSerializationConfig().addSerializerConfig(sc);
 
 		config.getMapConfigs().put('default', initializeDefaultMapConfig())
 		config.getMapConfigs().put('persistableCache', initializePersistableMapConfig())
@@ -78,7 +86,7 @@ public class CacheConfiguration {
 		 * all entries of the map will be copied to another JVM for fail-safety.
 		 * Valid numbers are 0 (no backup), 1, 2, 3.
 		 */
-		mapConfig.setBackupCount(0)
+		mapConfig.setBackupCount(backupCount)
 		/*
 		 * Valid values are: NONE (no eviction), LRU (Least Recently Used), LFU
 		 * (Least Frequently Used). NONE is the default.
@@ -95,19 +103,15 @@ public class CacheConfiguration {
 
 	private MapConfig initializePersistableMapConfig() {
 		MapConfig mapConfig = new MapConfig()
+		mapConfig.setBackupCount(1)
 		mapConfig.getHotRestartConfig().setEnabled(true)
-		mapConfig.setTimeToLiveSeconds(604800 * 20) // 20 weeks of expiration
+		mapConfig.setTimeToLiveSeconds(timeToLiveSecs) // 20 weeks of expiration
 		// Config Map Store
 		mapConfig.getMapStoreConfig().setEnabled(true)
 		// mapConfig.getMapStoreConfig().setClassName('io.tronbot.dc.service.RequestHistoryStore')
 		mapConfig.getMapStoreConfig().setImplementation(store)
-		if (env.acceptsProfiles(Constants.SPRING_PROFILE_DEVELOPMENT)) {
-			mapConfig.getMapStoreConfig().setWriteBatchSize(10)
-			mapConfig.getMapStoreConfig().setWriteDelaySeconds(5)
-		} else {
-			mapConfig.getMapStoreConfig().setWriteBatchSize(1000)
-			mapConfig.getMapStoreConfig().setWriteDelaySeconds(60)
-		}
+		mapConfig.getMapStoreConfig().setWriteBatchSize(writeBatchSize)
+		mapConfig.getMapStoreConfig().setWriteDelaySeconds(writeDelay)
 		mapConfig.getMapStoreConfig().setWriteCoalescing(true)
 		return mapConfig
 	}
