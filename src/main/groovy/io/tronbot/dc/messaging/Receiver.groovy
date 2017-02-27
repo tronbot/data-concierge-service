@@ -71,9 +71,11 @@ class Receiver implements Emitter{
 	@ServiceActivator(inputChannel=Emitter.saveOrUpdateHospital)
 	public Hospital saveOrUpdateHospital(Hospital hospital) {
 		log.debug "Saving Hospital: ${ToStringBuilder.reflectionToString(hospital)}"
-		Place p = placeRepository.findByPlaceId(hospital.getPlaceId())?.find()
+		Hospital h = hospitalRepository.findByPlaceId(hospital.getPlaceId())?.find()
 		if(p){
-			hospital.setId(p.getId())
+			hospital.setId(h.getId())
+			BeanUtils.copyProperties(h, hospital)
+			return physicianRepository.save(h)
 		}
 		return hospitalRepository.save(hospital)
 	}

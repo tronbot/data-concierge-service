@@ -41,4 +41,13 @@ class Provider {
 	@JsonPathElement(value='$.addresses[?(@.address_purpose == "LOCATION")].postal_code', interpreter=ArrayToSingleInterpreter.class)
 	String postalCode
 	final Type type = Type.doctor
+
+	String keywords(){
+		return "${orgName},${street},${city},${state}"
+	}
+	
+	String address(){
+		return "${street},${city},${state}"
+	}
+
 }

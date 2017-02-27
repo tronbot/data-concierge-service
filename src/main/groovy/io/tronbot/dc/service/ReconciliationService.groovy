@@ -41,15 +41,24 @@ public class ReconciliationService{
 	 * @param id - npi number
 	 * @return Physician
 	 */
-	private Provider npi(String id){
-		Provider provider  = null;
+	private Physician npi(String id){
+		Physician physician = null
 		NPIQuery query = new NPIQuery()
 		query.setNumber(id)
 		Map<String, Object> npiJson = json.read(npiRegistry.query(query), '$.results[*]')?.find()
 		if(npiJson){
-			provider = json.from(npiJson, new Provider())
+			Provider provider = json.from(npiJson, new Provider())
+			Place place = places(provider.keywords())?.find()
+			if(!place){
+				place = places(provider.address())?.find()
+			}
+			physician = new Physician()
+			BeanUtils.copyProperties(physician, provider)
+			BeanUtils.copyProperties(physician, place)
+			emitter.saveOrUpdatePhysician(physician)
 		}
-		return provider
+
+		return physician
 	}
 
 
@@ -57,14 +66,14 @@ public class ReconciliationService{
 	 * @param keywords - firstname lastname, street, city, state, zip
 	 * @return List of hospital
 	 */
-	private List<Physician> queryPhysicians(String firstName, String lastName, String city, String state, String postalCode){
+	private List<Physician> queryPhysicians(String firstName, String lastName, String city, String state){
 		List<Physician> physicians = new ArrayList()
 		NPIQuery query = new NPIQuery()
 		query.setFirstName(firstName)
 		query.setLastName(lastName)
 		query.setCity(city)
 		query.setState(state)
-		query.setPostalCode(postalCode)
+		//		query.setPostalCode(postalCode)
 		List npiJson = json.read(npiRegistry.query(query), '$.results[*]')
 		npiJson?.each{ npi ->
 			physicians.add(json.from(npi, new Physician()))
@@ -72,7 +81,7 @@ public class ReconciliationService{
 		if(!npiJson){
 			log.warn("No provider found for : ${ToStringBuilder.reflectionToString(query)}")
 		}
-		return physicians;
+		return physicians
 	}
 
 
@@ -85,7 +94,7 @@ public class ReconciliationService{
 		if(!keywords){
 			return physicians
 		}
-		Map<String, Object> placeJson = queryPlaces(keywords, Type.doctor)
+		Map<String, Object> placeJson = queryPlaces(keywords)
 		if(!'OK'.equalsIgnoreCase(json.read(placeJson, 'status'))){
 			placeJson =  queryPlaces(keywords.substring(StringUtils.ordinalIndexOf(keywords, ',', 2)+1))
 		}
@@ -96,8 +105,18 @@ public class ReconciliationService{
 				String firstName = keywords.split(',')[0].trim()
 				String lastName = keywords.split(',')[1].trim()
 				Place place = placeDetail(pid)
-				List<Physician> ps = queryPhysicians(firstName, lastName, place.getCity(), place.getState(), place.getPostalCode())
-				ps?.each { physician ->
+				List<Physician> ps = queryPhysicians(firstName, lastName, place.getCity(), place.getState())
+				if(ps){
+					ps.each { physician ->
+						BeanUtils.copyProperties(physician, place)
+						physicians.add(physician)
+						emitter.saveOrUpdatePhysician(physician)
+					}
+				}else{
+					// Physician is not resolved in NPI Registry
+					Physician physician = new Physician()
+					physician.setFirstName(firstName)
+					physician.setLastName(lastName)
 					BeanUtils.copyProperties(physician, place)
 					physicians.add(physician)
 					emitter.saveOrUpdatePhysician(physician)
@@ -106,7 +125,7 @@ public class ReconciliationService{
 		}else{
 			log.warn("No result found for : ${keywords}")
 		}
-		return physicians;
+		return physicians
 	}
 
 
@@ -135,7 +154,7 @@ public class ReconciliationService{
 		}else{
 			log.warn("No result found for : ${keywords}")
 		}
-		return hospitals;
+		return hospitals
 	}
 
 	/**
@@ -156,7 +175,7 @@ public class ReconciliationService{
 		}else{
 			log.warn("No result found for : ${keywords}")
 		}
-		return places;
+		return places
 	}
 
 	/**
@@ -179,7 +198,7 @@ public class ReconciliationService{
 	 */
 	public Map<String, Object>  queryPlaces(String keywords, Type type){
 		keywords = groomKeywords(keywords)
-		return keywords ? googlePlaces.query(keywords, type) : null;
+		return keywords ? googlePlaces.query(keywords, type) : null
 	}
 
 	/**
@@ -188,7 +207,7 @@ public class ReconciliationService{
 	 */
 	public Map<String, Object>  queryPlaces(String keywords){
 		keywords = groomKeywords(keywords)
-		return keywords ? googlePlaces.query(keywords) : null;
+		return keywords ? googlePlaces.query(keywords) : null
 	}
 
 	/**

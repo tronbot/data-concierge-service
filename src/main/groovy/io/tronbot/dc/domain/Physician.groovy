@@ -3,6 +3,8 @@ package io.tronbot.dc.domain
 import javax.persistence.Entity
 import javax.persistence.Transient
 
+import org.apache.commons.beanutils.BeanUtils
+
 import io.tronbot.dc.common.json.ArrayToSingleInterpreter
 import io.tronbot.dc.common.json.IntegerInterpreter
 import io.tronbot.dc.common.json.JsonPathElement

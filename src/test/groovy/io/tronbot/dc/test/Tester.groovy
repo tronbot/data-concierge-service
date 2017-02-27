@@ -67,9 +67,11 @@ class Tester {
 		BeanUtils.copyProperties(places[0], places[1])
 		println ReflectionToStringBuilder.toString(places[0])
 		println Objects.equals(places[0], places[1])
+		
+		
 	}
 
-	@Test
+	
 	public void testNPIRegistry(){
 		//jsonize the NPIQuery
 		NPIQuery q = new NPIQuery()
@@ -90,7 +92,7 @@ class Tester {
 			println ReflectionToStringBuilder.toString(p)
 		}
 	}
-
+	@Test
 	public void tempTest(){
 		String keywords = 'CHORNG LII , HWANG , 81709 DR CARREON BLVD, INDIO, CA, 92201'
 		keywords = ReconciliationService.groomKeywords(keywords);
@@ -102,8 +104,21 @@ class Tester {
 		println lastName
 		println addressKeyword
 
-		def array = ['111', '222', '333']
+		def array = []
+		if(array){
+			println "array exists"
+		}else{
+			println "array is null"
+		}
 		println array?.find()
+		
+		Physician physician = new Physician()
+		
+		physician.setFirstName('adadf')
+		physician.setLastName('zxcvzxc')
+		println physician
+		
+		
 
 
 	}
