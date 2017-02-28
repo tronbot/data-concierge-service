@@ -63,7 +63,7 @@ public class ReconciliationService{
 			if(npis.size() > 1){
 				soccer = soccerPhysicians(physician,firstName,lastName,address,city,state,postalCode,phoneNumber)
 			}
-			if(soccer < 200001){
+			if(soccer < 200001 && physicians.size() > 0){
 				// within 200km radius
 				physician.setPlace(resolvePlaceForPhysician(physician))
 				physicians.put(soccer + Math.random(), physician)
