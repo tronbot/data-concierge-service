@@ -46,7 +46,7 @@ public class NPIQuery{
 	String city
 	String state
 	String postalCode
-	String enumerationType = 'NPI-1'
+	String enumerationType
 	String countryCode = 'US'
 	Integer limit = 200
 	Integer skip

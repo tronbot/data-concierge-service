@@ -22,6 +22,7 @@ import io.tronbot.dc.domain.Place
 import io.tronbot.dc.domain.Place.Type
 import io.tronbot.dc.helper.JsonHelper
 import io.tronbot.dc.service.ReconciliationService
+import io.tronbot.dc.utils.StringHelper
 
 /**
  * @author <a href="mailto:juanyong.zhang@gmail.com">Juanyong Zhang</a> 
@@ -71,7 +72,7 @@ class Tester {
 		println Objects.equals(places[0], places[1])
 	}
 
-	@Test
+	
 	public void testNPIRanking(){
 		final String firstName = 'Douglas'
 		final String lastName = 'Nguyen'
@@ -175,6 +176,15 @@ class Tester {
 		}
 	}
 
+	@Test
+	public void testKeywords(){
+		String str = StringHelper.groomKeywords("PHILLIP, REICH,9300 campus point dr,la jolla,ca,92037,858-554-9100")
+		List strs = str.split(',') as List
+		String firstName = strs[7]
+		
+		println firstName
+	}
+	
 	public void tempTest(){
 		String keywords = 'CHORNG LII , HWANG , 81709 DR CARREON BLVD, INDIO, CA, 92201'
 		keywords = ReconciliationService.groomKeywords(keywords);
@@ -202,7 +212,5 @@ class Tester {
 
 		PostalCodeInterpreter postalCodeInterpreter = new PostalCodeInterpreter()
 		println postalCodeInterpreter.interpret(null)
-
-
 	}
 }

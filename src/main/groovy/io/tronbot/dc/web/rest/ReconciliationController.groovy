@@ -14,6 +14,7 @@ import groovy.util.logging.Log4j
 import io.tronbot.dc.client.NPIQuery
 import io.tronbot.dc.dto.Reconciliation
 import io.tronbot.dc.service.ReconciliationService
+import io.tronbot.dc.utils.StringHelper
 
 /**
  * placeRaw('business name, address')
@@ -81,16 +82,29 @@ class ReconciliationController {
 	 * @return json list of hospitals
 	 */
 	@GetMapping('/physicians')
-	public @ResponseBody ResponseEntity physicians(
-			@RequestParam(value='firstName') String firstName,
-			@RequestParam(value='lastName') String lastName,
-			@RequestParam(value='address') String address,
-			@RequestParam(value='city') String city,
-			@RequestParam(value='state') String state,
-			@RequestParam(value='postalCode', required=false) String postalCode,
-			@RequestParam(value='phoneNumber', required=false) String phoneNumber){
-		Object result = service.physicians(firstName,lastName,address,city,state,postalCode,phoneNumber)
-		return Reconciliation.resp(result)
+	public @ResponseBody ResponseEntity physicians(@RequestParam('q') String keywords)
+			//			@RequestParam(value='firstName') String firstName,
+			//			@RequestParam(value='lastName') String lastName,
+			//			@RequestParam(value='address') String address,
+			//			@RequestParam(value='city') String city,
+			//			@RequestParam(value='state') String state,
+			//			@RequestParam(value='postalCode', required=false) String postalCode,
+			//			@RequestParam(value='phoneNumber', required=false) String phoneNumber)
+	{
+		List<String> breakdowns = StringHelper.groomKeywords(keywords).split(',') as List
+		String firstName = breakdowns[0]
+		String lastName = breakdowns[1]
+		String address = breakdowns[2]
+		String city = breakdowns[3]
+		String state = breakdowns[4]
+		String postalCode = breakdowns[5]
+		String phoneNumber = breakdowns[6]
+		if(!firstName || !lastName || !address || !city || !state ){
+			return Reconciliation.resp(null)
+		}else{
+			Object result = service.physicians(firstName,lastName,address,city,state,postalCode,phoneNumber)
+			return Reconciliation.resp(result)
+		}
 	}
 
 	@GetMapping('/npi/{id}')

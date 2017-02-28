@@ -8,13 +8,13 @@ import groovy.util.logging.Log4j
 import io.tronbot.dc.client.GoogleMapsClient
 import io.tronbot.dc.client.NPIQuery
 import io.tronbot.dc.client.NPIRegistryClientHelper
-import io.tronbot.dc.dao.PhysicianRepository
 import io.tronbot.dc.domain.Hospital
 import io.tronbot.dc.domain.Physician
 import io.tronbot.dc.domain.Place
 import io.tronbot.dc.domain.Place.Type
 import io.tronbot.dc.helper.JsonHelper
 import io.tronbot.dc.messaging.Emitter
+import io.tronbot.dc.utils.StringHelper
 
 /**
  * @author <a href="mailto:juanyong.zhang@gmail.com">Juanyong Zhang</a> 
@@ -97,11 +97,12 @@ public class ReconciliationService{
 			final String phoneNumber){
 		Double soccer = 0
 		// if check if phone number match
-		if(phoneNumber && physician.getPhoneNumber() && StringUtils.equals(stripPhoneNumber(phoneNumber), stripPhoneNumber(physician.getPhoneNumber()))){
+		if(phoneNumber && physician.getPhoneNumber()
+		&& StringUtils.equals(StringHelper.stripPhoneNumber(phoneNumber), StringHelper.stripPhoneNumber(physician.getPhoneNumber()))){
 			return soccer
 		}
-		final String origins = groomKeywords("${address}, ${city}, ${state}, ${postalCode}")
-		final String destinations = groomKeywords(physician.getAddressString())
+		final String origins = StringHelper.groomKeywords("${address}, ${city}, ${state}, ${postalCode}")
+		final String destinations = StringHelper.groomKeywords(physician.getAddressString())
 		Integer distance = json.read(googleMaps.distance(origins, destinations), '$.rows[0].elements[0].distance.value')
 		return soccer += distance?distance:150000
 	}
@@ -205,7 +206,7 @@ public class ReconciliationService{
 	 * @return JSON String of google places
 	 */
 	public Map<String, Object>  queryPlaces(String keywords, Type type){
-		keywords = groomKeywords(keywords)
+		keywords = StringHelper.groomKeywords(keywords)
 		return keywords ? googleMaps.query(keywords, type) : null
 	}
 
@@ -214,7 +215,7 @@ public class ReconciliationService{
 	 * @return JSON String of google places
 	 */
 	public Map<String, Object>  queryPlaces(String keywords){
-		keywords = groomKeywords(keywords)
+		keywords = StringHelper.groomKeywords(keywords)
 		return keywords ? googleMaps.query(keywords) : null
 	}
 
@@ -235,27 +236,5 @@ public class ReconciliationService{
 		return q ? npiRegistry.query(q) : null
 	}
 
-	/**
-	 * 
-	 * @param keywords
-	 * @return keywords without 'null', multi whitespace, multi tab, multi backslash.
-	 */
-	public static String groomKeywords(String keywords){
-		return keywords.toLowerCase().replace('\t', ' ').replaceAll('null', '').replaceAll('\\W -,.&', '').replace(', ', ',').trim().replaceAll(' +', ' ')
-	}
 
-	public static String firstFiveZip(String postalCode){
-		if(!postalCode){
-			return null;
-		}
-		return StringUtils.substring(postalCode, 0, 5)
-	}
-
-
-	public static String stripPhoneNumber(String phoneNumber){
-		if(!phoneNumber){
-			return null;
-		}
-		return StringUtils.replaceAll(phoneNumber, '[\\D]','').substring(0,10)
-	}
 }
