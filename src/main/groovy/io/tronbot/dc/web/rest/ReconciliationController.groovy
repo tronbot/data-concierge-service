@@ -41,19 +41,19 @@ class ReconciliationController {
 	@GetMapping('/raw/places')
 	public @ResponseBody ResponseEntity placesRaw(@RequestParam('q') String keywords){
 		Object result = service.queryPlaces(keywords)
-		return result ? Reconciliation.accurate(result) : Reconciliation.notFound()
+		return Reconciliation.resp(result)
 	}
 
 	@GetMapping('/raw/places/{placeId}')
 	public @ResponseBody ResponseEntity placeDetailRaw(@PathVariable String placeId){
 		Object result = service.queryPlaceDetail(placeId)
-		return result ? Reconciliation.accurate(result) : Reconciliation.notFound()
+		return Reconciliation.resp(result)
 	}
 
 	@PutMapping('/raw/npi')
 	public @ResponseBody ResponseEntity npiRaw(@RequestBody NPIQuery query){
 		Object result = service.queryNpi(query)
-		return result ? Reconciliation.accurate(result) : Reconciliation.notFound()
+		return Reconciliation.resp(result)
 	}
 
 	/**
@@ -63,7 +63,7 @@ class ReconciliationController {
 	@GetMapping('/places')
 	public @ResponseBody ResponseEntity places(@RequestParam('q') String keywords){
 		Object result = service.places(keywords)
-		return result ? Reconciliation.accurate(result) : Reconciliation.notFound()
+		return Reconciliation.resp(result)
 	}
 
 	/**
@@ -73,7 +73,7 @@ class ReconciliationController {
 	@GetMapping('/hospitals')
 	public @ResponseBody ResponseEntity hospitals(@RequestParam('q') String keywords){
 		Object result = service.hospitals(keywords)
-		return result ? Reconciliation.accurate(result) : Reconciliation.notFound()
+		return Reconciliation.resp(result)
 	}
 
 	/**
@@ -81,16 +81,22 @@ class ReconciliationController {
 	 * @return json list of hospitals
 	 */
 	@GetMapping('/physicians')
-	public @ResponseBody ResponseEntity physicians(@RequestParam('q') String keywords){
-		Object result = service.physicians(keywords)
-		return result ? Reconciliation.accurate(result) : Reconciliation.notFound()
+	public @ResponseBody ResponseEntity physicians(
+			@RequestParam(value='firstName') String firstName,
+			@RequestParam(value='lastName') String lastName,
+			@RequestParam(value='address') String address,
+			@RequestParam(value='city') String city,
+			@RequestParam(value='state') String state,
+			@RequestParam(value='postalCode', required=false) String postalCode,
+			@RequestParam(value='phoneNumber', required=false) String phoneNumber){
+		Object result = service.physicians(firstName,lastName,address,city,state,postalCode,phoneNumber)
+		return Reconciliation.resp(result)
 	}
-
 
 	@GetMapping('/npi/{id}')
 	public @ResponseBody ResponseEntity npi(@PathVariable('id') String id){
 		Object result = service.npi(id)
-		return result ? Reconciliation.accurate(result) : Reconciliation.notFound()
+		return Reconciliation.resp(result)
 	}
 }
 

@@ -38,7 +38,6 @@ public interface NPIRegistryClient {
 
 public class NPIQuery{
 	String number
-	String enumerationType = 'NPI-1'
 	String taxonomyDescription
 	String firstName
 	String lastName
@@ -47,8 +46,9 @@ public class NPIQuery{
 	String city
 	String state
 	String postalCode
+	String enumerationType = 'NPI-1'
 	String countryCode = 'US'
-	Integer limit = 20
+	Integer limit = 200
 	Integer skip
 	Boolean pretty = false
 }

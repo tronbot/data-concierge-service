@@ -14,17 +14,22 @@ import io.tronbot.dc.domain.Place.Type
  * @author <a href = "mailto:juanyong.zhang@gmail.com">Juanyong Zhang</a> 
  * @date Feb 6, 2017
  */
-@FeignClient(name = 'GooglePlaces', url = '${google.places.api.url}', configuration = GooglePlacesFeignConfiguration.class)
-public interface GooglePlacesClient {
+@FeignClient(name = 'GoogleMapsClient', url = '${google.maps.api.url}', configuration = GooglePlacesFeignConfiguration.class)
+public interface GoogleMapsClient {
 	@Cacheable(value = 'persistableCache', keyGenerator = 'feignCacheKeyGenerator')
-	@GetMapping(value = 'textsearch/json?key=${google.places.api.key}&query={keywords}&type={type}')
+	@GetMapping(value = 'place/textsearch/json?key=${google.places.api.key}&query={keywords}&type={type}')
 	Map<String, Object> query(@PathVariable('keywords') String keywords, @PathVariable('type') Type type)
 
 	@Cacheable(value = 'persistableCache', keyGenerator = 'feignCacheKeyGenerator')
-	@GetMapping(value = 'textsearch/json?key=${google.places.api.key}&query={keywords}')
+	@GetMapping(value = 'place/textsearch/json?key=${google.places.api.key}&query={keywords}')
 	Map<String, Object> query(@PathVariable('keywords') String keywords)
 
 	@Cacheable(value = 'persistableCache', keyGenerator = 'feignCacheKeyGenerator')
-	@GetMapping(value = 'details/json?key=${google.places.api.key}&placeid={place_id}')
+	@GetMapping(value = 'place/details/json?key=${google.places.api.key}&placeid={place_id}')
 	Map<String, Object> detail(@PathVariable('place_id') String placeId)
+	
+	
+	@Cacheable(value = 'persistableCache', keyGenerator = 'feignCacheKeyGenerator')
+	@GetMapping(value = 'distancematrix/json?key=${google.maps.api.key}&origins={origins}&destinations={destinations}')
+	Map<String, Object> distance(@PathVariable('origins') String origins,@PathVariable('destinations') String destinations)
 }

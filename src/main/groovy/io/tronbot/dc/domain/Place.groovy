@@ -21,7 +21,7 @@ import io.tronbot.dc.common.json.JsonPathElement
  * @date Feb 22, 2017
  */
 @Entity
-@Table(indexes = [@Index(name = 'IDX_PLACE', columnList = 'placeId')])
+@Table(name='dc_place', indexes = [@Index(name = 'IDX_PLACE', columnList = 'placeId')])
 @Inheritance(strategy = InheritanceType.JOINED)
 @JsonPathElement('$.result')
 class Place {

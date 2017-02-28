@@ -20,7 +20,7 @@ import com.jayway.jsonpath.JsonPath
  */
 @Entity
 @Access(AccessType.FIELD)
-@Table(indexes = [@Index(name = 'IDX_REQHIS', columnList = 'request')])
+@Table(name='dc_request_history', indexes = [@Index(name = 'IDX_REQHIS', columnList = 'request')])
 public class RequestHistory{
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

@@ -2,18 +2,17 @@ package io.tronbot.dc.service
 
 import org.apache.commons.beanutils.BeanUtils
 import org.apache.commons.lang3.StringUtils
-import org.apache.commons.lang3.builder.ToStringBuilder
 import org.springframework.stereotype.Service
 
 import groovy.util.logging.Log4j
-import io.tronbot.dc.client.GooglePlacesClient
+import io.tronbot.dc.client.GoogleMapsClient
 import io.tronbot.dc.client.NPIQuery
 import io.tronbot.dc.client.NPIRegistryClientHelper
+import io.tronbot.dc.dao.PhysicianRepository
 import io.tronbot.dc.domain.Hospital
 import io.tronbot.dc.domain.Physician
 import io.tronbot.dc.domain.Place
 import io.tronbot.dc.domain.Place.Type
-import io.tronbot.dc.dto.Provider
 import io.tronbot.dc.helper.JsonHelper
 import io.tronbot.dc.messaging.Emitter
 
@@ -24,110 +23,119 @@ import io.tronbot.dc.messaging.Emitter
 @Service
 @Log4j
 public class ReconciliationService{
-	private final GooglePlacesClient googlePlaces
+	private final GoogleMapsClient googleMaps
 	private final NPIRegistryClientHelper npiRegistry
 	private final JsonHelper json
 	private final Emitter emitter
 
-	ReconciliationService(GooglePlacesClient googlePlaces, NPIRegistryClientHelper npiRegistry,JsonHelper json, Emitter emitter){
-		this.googlePlaces = googlePlaces
+	ReconciliationService(GoogleMapsClient googleMaps, NPIRegistryClientHelper npiRegistry,JsonHelper json, Emitter emitter){
+		this.googleMaps = googleMaps
 		this.npiRegistry = npiRegistry
 		this.json = json
 		this.emitter = emitter
 	}
 
+
 	/**
 	 * 
-	 * @param id - npi number
-	 * @return Physician
+	 * @param firstName
+	 * @param lastName
+	 * @param address 123 main street, big city, mighty state, 54321
+	 * @return List of Physicians in ranking
 	 */
-	private Physician npi(String id){
-		Physician physician = null
-		NPIQuery query = new NPIQuery()
-		query.setNumber(id)
-		Map<String, Object> npiJson = json.read(npiRegistry.query(query), '$.results[*]')?.find()
-		if(npiJson){
-			Provider provider = json.from(npiJson, new Provider())
-			Place place = places(provider.keywords())?.find()
-			if(!place){
-				place = places(provider.address())?.find()
-			}
-			physician = new Physician()
-			BeanUtils.copyProperties(physician, provider)
-			BeanUtils.copyProperties(physician, place)
-			emitter.saveOrUpdatePhysician(physician)
-		}
-
-		return physician
-	}
-
-
-	/**
-	 * @param keywords - firstname lastname, street, city, state, zip
-	 * @return List of hospital
-	 */
-	private List<Physician> queryPhysicians(String firstName, String lastName, String city, String state){
-		List<Physician> physicians = new ArrayList()
+	public Collection<Physician> physicians(String firstName, String lastName, String address, String city, String state, String postalCode, String phoneNumber){
+		Map<Double, Physician> physicians = new TreeMap()
 		NPIQuery query = new NPIQuery()
 		query.setFirstName(firstName)
 		query.setLastName(lastName)
 		query.setCity(city)
 		query.setState(state)
-		//		query.setPostalCode(postalCode)
-		List npiJson = json.read(npiRegistry.query(query), '$.results[*]')
-		npiJson?.each{ npi ->
-			physicians.add(json.from(npi, new Physician()))
+		query.setPostalCode(postalCode)
+		List npis = json.read(npiRegistry.query(query), '$.results')
+		if(!npis){
+			query.setCity('')
+			query.setPostalCode('')
+			npis = json.read(npiRegistry.query(query), '$.results')
 		}
-		if(!npiJson){
-			log.warn("No provider found for : ${ToStringBuilder.reflectionToString(query)}")
+		npis.any { npi ->
+			Physician physician = json.from(npi, new Physician())
+			Double soccer = 0d
+			if(npis.size() > 1){
+				soccer = soccerPhysicians(physician,firstName,lastName,address,city,state,postalCode,phoneNumber)
+			}
+			if(soccer < 200001){
+				// within 200km radius
+				physician.setPlace(resolvePlaceForPhysician(physician))
+				physicians.put(soccer + Math.random(), physician)
+				emitter.saveOrUpdatePhysician(physician)
+			}
+			if(soccer < 500){
+				// since we found the matching phone number return there
+				return true
+			}
 		}
-		return physicians
+		return physicians.values()
 	}
 
+	private Place queryPlaceDetailByKeywords(String firstName, String lastName, String address, String city, String state){
+		String keywords = "${firstName} ${lastName},${address},${city},${state}"
+		String placeId = json.read(queryPlaces(keywords), '$.results[0].place_id')
+		if(!placeId){
+			keywords = "${address}, ${city}, ${state}"
+			placeId = json.read(queryPlaces(keywords), '$.results[0].place_id')
+		}
+		return json.from(queryPlaceDetail(placeId), new Place())
+	}
+
+	private Double soccerPhysicians(final Physician physician,
+			final String firstName,
+			final String lastName,
+			final String address,
+			final String city,
+			final String state,
+			final String postalCode,
+			final String phoneNumber){
+		Double soccer = 0
+		// if check if phone number match
+		if(phoneNumber && physician.getPhoneNumber() && StringUtils.equals(stripPhoneNumber(phoneNumber), stripPhoneNumber(physician.getPhoneNumber()))){
+			return soccer
+		}
+		final String origins = groomKeywords("${address}, ${city}, ${state}, ${postalCode}")
+		final String destinations = groomKeywords(physician.getAddressString())
+		Integer distance = json.read(googleMaps.distance(origins, destinations), '$.rows[0].elements[0].distance.value')
+		return soccer += distance?distance:150000
+	}
 
 	/**
-	 * @param keywords - firstname, lastname, street, city, state, zip
-	 * @return List of hospital
+	 *
+	 * @param id - npi number
+	 * @return Physician
 	 */
-	public List<Physician> physicians(String keywords){
-		List<Physician> physicians = new ArrayList()
-		if(!keywords){
-			return physicians
+	public Physician npi(String id){
+		Physician physician = null
+		NPIQuery query = new NPIQuery()
+		query.setNumber(id)
+		Map<String, Object> npiJson = json.read(npiRegistry.query(query), '$.results[0]')
+		if(npiJson){
+			physician = json.from(npiJson, new Physician())
+			physician.setPlace(resolvePlaceForPhysician(physician))
+			emitter.saveOrUpdatePhysician(physician)
 		}
-		Map<String, Object> placeJson = queryPlaces(keywords)
-		if(!'OK'.equalsIgnoreCase(json.read(placeJson, 'status'))){
-			placeJson =  queryPlaces(keywords.substring(StringUtils.ordinalIndexOf(keywords, ',', 2)+1))
-		}
-		List<String> physicianPids =  json.read(placeJson, '$.results[*].place_id')
-		if(physicianPids){
-			log.info("${physicianPids.size()} results found for ${keywords}")
-			physicianPids.each{ pid ->
-				String firstName = keywords.split(',')[0].trim()
-				String lastName = keywords.split(',')[1].trim()
-				Place place = placeDetail(pid)
-				List<Physician> ps = queryPhysicians(firstName, lastName, place.getCity(), place.getState())
-				if(ps){
-					ps.each { physician ->
-						BeanUtils.copyProperties(physician, place)
-						physicians.add(physician)
-						emitter.saveOrUpdatePhysician(physician)
-					}
-				}else{
-					// Physician is not resolved in NPI Registry
-					Physician physician = new Physician()
-					physician.setFirstName(firstName)
-					physician.setLastName(lastName)
-					BeanUtils.copyProperties(physician, place)
-					physicians.add(physician)
-					emitter.saveOrUpdatePhysician(physician)
-				}
-			}
-		}else{
-			log.warn("No result found for : ${keywords}")
-		}
-		return physicians
+		return physician
 	}
 
+
+	private Place resolvePlaceForPhysician(Physician physician){
+		if(!physician){
+			return null
+		}
+		String placeId = json.read(queryPlaces(physician.keywords()), '$.results[0].place_id')
+		if(!placeId){
+			log.info("Unable to find Physician[${physician.npi}] by keywords[${physician.keywords()}] in google, getting street address by [${physician.getAddressString()}] instead.")
+			placeId = json.read(queryPlaces(physician.getAddressString()), '$.results[0].place_id')
+		}
+		return json.from(queryPlaceDetail(placeId), new Place())
+	}
 
 	/**
 	 * @param keywords - business name, street, city, state, zip
@@ -147,7 +155,7 @@ public class ReconciliationService{
 			log.info("${hospitalPids.size()} results found for ${keywords}")
 			hospitalPids.each{ pid ->
 				Hospital h = new Hospital()
-				BeanUtils.copyProperties(h, placeDetail(pid))
+				BeanUtils.copyProperties(h, json.from(queryPlaceDetail(pid), new Place()))
 				hospitals.add(h)
 				emitter.saveOrUpdateHospital(h)
 			}
@@ -198,7 +206,7 @@ public class ReconciliationService{
 	 */
 	public Map<String, Object>  queryPlaces(String keywords, Type type){
 		keywords = groomKeywords(keywords)
-		return keywords ? googlePlaces.query(keywords, type) : null
+		return keywords ? googleMaps.query(keywords, type) : null
 	}
 
 	/**
@@ -207,7 +215,7 @@ public class ReconciliationService{
 	 */
 	public Map<String, Object>  queryPlaces(String keywords){
 		keywords = groomKeywords(keywords)
-		return keywords ? googlePlaces.query(keywords) : null
+		return keywords ? googleMaps.query(keywords) : null
 	}
 
 	/**
@@ -215,7 +223,7 @@ public class ReconciliationService{
 	 * @return JSON String of google place detail
 	 */
 	public Map<String, Object> queryPlaceDetail(String placeId){
-		return placeId ? googlePlaces.detail(placeId) : null
+		return placeId ? googleMaps.detail(placeId) : null
 	}
 
 	/**
@@ -234,5 +242,20 @@ public class ReconciliationService{
 	 */
 	public static String groomKeywords(String keywords){
 		return keywords.toLowerCase().replace('\t', ' ').replaceAll('null', '').replaceAll('\\W -,.&', '').replace(', ', ',').trim().replaceAll(' +', ' ')
+	}
+
+	public static String firstFiveZip(String postalCode){
+		if(!postalCode){
+			return null;
+		}
+		return StringUtils.substring(postalCode, 0, 5)
+	}
+
+
+	public static String stripPhoneNumber(String phoneNumber){
+		if(!phoneNumber){
+			return null;
+		}
+		return StringUtils.replaceAll(phoneNumber, '[\\D]','').substring(0,10)
 	}
 }

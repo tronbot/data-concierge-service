@@ -6,6 +6,7 @@ import org.apache.commons.beanutils.BeanUtils
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder
+import org.apache.commons.lang3.builder.ToStringBuilder
 import org.junit.Assert
 import org.junit.Test
 
@@ -15,6 +16,7 @@ import com.jayway.jsonpath.Configuration
 import groovy.util.logging.Log4j
 import io.tronbot.dc.client.NPIQuery
 import io.tronbot.dc.common.json.JsonPathReflector
+import io.tronbot.dc.common.json.PostalCodeInterpreter
 import io.tronbot.dc.domain.Physician
 import io.tronbot.dc.domain.Place
 import io.tronbot.dc.domain.Place.Type
@@ -34,7 +36,7 @@ class Tester {
 	public void testGooglePlaces(){
 		//Google Places
 		String keywords = "ucsd emer physicians thornton,9300 campus point dr,la jolla,ca"
-		String placesURL = "https://maps.googleapis.com/maps/api/place/textsearch/json?key=AIzaSyCzR2RLfJp-fF1Ui0tPRwKXLNWTDXDUu3E&query=${URLEncoder.encode(ReconciliationService.groomKeywords(keywords), "UTF-8")}"
+		String placesURL = "https://maps.googleapis.com/maps/api/place/textsearch/json?key=AIzaSyCzR2RLfJp-fF1Ui0tPRwKXLNWTDXDUu3E&query=${URLEncoder.encode(ReconciliationService.groomKeywords(keywords), 'UTF-8')}"
 		Map<String, Object> jsonMap = jsonHelper.stringToMap(IOUtils.toString(new URL(placesURL), Charset.defaultCharset()))
 		String jsonStr = jsonHelper.mapToString(jsonMap)
 		println jsonMap
@@ -67,11 +69,85 @@ class Tester {
 		BeanUtils.copyProperties(places[0], places[1])
 		println ReflectionToStringBuilder.toString(places[0])
 		println Objects.equals(places[0], places[1])
-		
-		
 	}
 
-	
+	@Test
+	public void testNPIRanking(){
+		final String firstName = 'Douglas'
+		final String lastName = 'Nguyen'
+		final String address = '501 E Peltason'
+		final String city = 'Irvine'
+		final String state = 'CA'
+		final String postalCode = null
+		final String phoneNumber = null
+
+		Map<Double, Physician> physicians = new TreeMap()
+		String npiURL = "https://npiregistry.cms.hhs.gov/api?number=&enumeration_type=NPI-1&taxonomy_description=&first_name=${firstName}&last_name=${lastName}&organization_name=&address_purpose=&city=${city}&state=${state}&postal_code=${postalCode}&country_code=US&limit=200&skip=&pretty="
+		List npis = jsonHelper.read(IOUtils.toString(new URL(npiURL)), '$.results')
+		if(!npis){
+			npiURL = "https://npiregistry.cms.hhs.gov/api?number=&enumeration_type=NPI-1&taxonomy_description=&first_name=${firstName}&last_name=${lastName}&organization_name=&address_purpose=&city=&state=${state}&postal_code=&country_code=US&limit=200&skip=&pretty="
+			npis = jsonHelper.read(IOUtils.toString(new URL(npiURL)), '$.results')
+		}
+
+		npis.any { npi ->
+			Physician physician = jsonHelper.from(npi, new Physician())
+			Double soccer = 0d
+			if(npis.size() > 1){
+				soccer = soccerPhysicians(physician,firstName,lastName,address,city,state,postalCode,phoneNumber )
+			}
+			if(soccer < 200001){
+				physicians.put(soccer + Math.random(), physician)
+			}
+			if(soccer < 500){
+				// since we found the matching phone number return there
+				return true
+			}
+		}
+		physicians.each { k, v ->
+			println "${k}\t: ${ToStringBuilder.reflectionToString(v)}"
+		}
+	}
+
+	Double soccerPhysicians(final Physician physician,
+			final String firstName,
+			final String lastName,
+			final String address,
+			final String city,
+			final String state,
+			final String postalCode,
+			final String phoneNumber){
+		Double soccer = 0
+		// if check if phone number match
+		if(phoneNumber && physician.getPhoneNumber() && StringUtils.equals(stripPhoneNumber(phoneNumber), stripPhoneNumber(physician.getPhoneNumber()))){
+			return soccer 
+		}
+//		if(postalCode && physician.getAddress().getPostalCode() && StringUtils.equals(firstFiveZip(postalCode), firstFiveZip(physician.getAddress().getPostalCode()))){
+//			soccer -= 10000
+//		}
+		final String origins = ReconciliationService.groomKeywords(URLEncoder.encode("${address}, ${city}, ${state}, ${postalCode}", 'UTF-8'))
+		final String destinations = URLEncoder.encode(physician.getAddressString(), 'UTF-8')
+		String distanceURL = "https://maps.googleapis.com/maps/api/distancematrix/json?key=AIzaSyDtjzZV79yvZeVKaXiLQghUvIBaWLnYZeY&origins=${origins}&destinations=${destinations}"
+		Integer distance = jsonHelper.read(IOUtils.toString(new URL(distanceURL)), '$.rows[0].elements[0].distance.value')
+		return soccer += distance?distance:150000
+	}
+
+
+	String firstFiveZip(String postalCode){
+		if(!postalCode){
+			return null;
+		}
+		return StringUtils.substring(postalCode, 0, 5)
+	}
+
+
+	String stripPhoneNumber(String phoneNumber){
+		if(!phoneNumber){
+			return null;
+		}
+		return StringUtils.replaceAll(phoneNumber, '[\\D]','').substring(0,10)
+	}
+
+
 	public void testNPIRegistry(){
 		//jsonize the NPIQuery
 		NPIQuery q = new NPIQuery()
@@ -81,6 +157,10 @@ class Tester {
 		q.setState('CA')
 		q.setPostalCode('92201')
 		q.setOrganizationName('HWANG CHORNG LII')
+		q.setNumber('')
+		q.setTaxonomyDescription('')
+
+
 		String npiQuery = gson.toJson(q)
 		println npiQuery
 
@@ -89,10 +169,12 @@ class Tester {
 		providers.each { pJson ->
 			Physician p = jsonHelper.from(pJson, new Physician())
 			Assert.assertTrue(StringUtils.equals(q.getLastName(),p.getLastName()));
+			println p.keywords()
+			println p.getAddressString()
 			println ReflectionToStringBuilder.toString(p)
 		}
 	}
-	@Test
+
 	public void tempTest(){
 		String keywords = 'CHORNG LII , HWANG , 81709 DR CARREON BLVD, INDIO, CA, 92201'
 		keywords = ReconciliationService.groomKeywords(keywords);
@@ -111,14 +193,15 @@ class Tester {
 			println "array is null"
 		}
 		println array?.find()
-		
+
 		Physician physician = new Physician()
-		
+
 		physician.setFirstName('adadf')
 		physician.setLastName('zxcvzxc')
 		println physician
-		
-		
+
+		PostalCodeInterpreter postalCodeInterpreter = new PostalCodeInterpreter()
+		println postalCodeInterpreter.interpret(null)
 
 
 	}

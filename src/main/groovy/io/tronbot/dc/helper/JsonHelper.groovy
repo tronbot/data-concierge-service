@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.jayway.jsonpath.PathNotFoundException
+import com.jayway.jsonpath.JsonPathException
 import com.jayway.jsonpath.Predicate
 
 import groovy.util.logging.Log4j
@@ -48,7 +48,7 @@ class JsonHelper{
 		T val = null
 		try{
 			val = jsonPathReflector.read(json, jsonPath, filters)
-		}catch(PathNotFoundException e){
+		}catch(JsonPathException e){
 			log.info(e.getMessage())
 		}
 		return val
