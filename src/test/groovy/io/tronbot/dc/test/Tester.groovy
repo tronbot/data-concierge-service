@@ -180,9 +180,12 @@ class Tester {
 	public void testKeywords(){
 		String str = StringHelper.groomKeywords("PHILLIP, REICH,9300 campus point dr,la jolla,ca,92037,858-554-9100")
 		List strs = str.split(',') as List
-		String firstName = strs[7]
-		
-		println firstName
+		String firstName = ''
+		if(firstName){
+			println 'fisrt name exists'
+		}else{
+			println 'fisrt name is null'
+		}
 	}
 	
 	public void tempTest(){

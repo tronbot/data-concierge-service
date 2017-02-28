@@ -57,21 +57,30 @@ public class ReconciliationService{
 			query.setPostalCode('')
 			npis = json.read(npiRegistry.query(query), '$.results')
 		}
+		if(!npis){
+			query.setState('')
+			query.setLimit(20)
+			npis = json.read(npiRegistry.query(query), '$.results')
+		}
+
 		npis.any { npi ->
 			Physician physician = json.from(npi, new Physician())
-			Double soccer = 0d
-			if(npis.size() > 1){
-				soccer = soccerPhysicians(physician,firstName,lastName,address,city,state,postalCode,phoneNumber)
-			}
-			if(soccer < 200001 && physicians.size() > 0){
-				// within 200km radius
+			if(query.getState()){
+				Double soccer = 0d
+				if(npis.size() > 1){
+					soccer = soccerPhysicians(physician,firstName,lastName,address,city,state,postalCode,phoneNumber)
+				}
 				physician.setPlace(resolvePlaceForPhysician(physician))
 				physicians.put(soccer + Math.random(), physician)
 				emitter.saveOrUpdatePhysician(physician)
-			}
-			if(soccer < 500){
-				// since we found the matching phone number return there
-				return true
+				if(soccer < 300){
+					// since we found the matching phone number return there
+					return true
+				}
+			}else{
+				physician.setPlace(resolvePlaceForPhysician(physician))
+				physicians.put(100000000*Math.random()+Math.random(), physician)
+				emitter.saveOrUpdatePhysician(physician)
 			}
 		}
 		return physicians.values()

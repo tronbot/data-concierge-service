@@ -81,11 +81,12 @@ class Physician{
 
 	@OneToOne(cascade = CascadeType.PERSIST)
 	Place place
-
+	
+	@JsonIgnore
 	String keywords(){
 		return "${orgName},${address?.address1},${address?.city},${address?.state}"
 	}
-
+	@JsonIgnore
 	String getAddressString(){
 		return "${address?.address1},${address?.city},${address?.state}"
 	}
