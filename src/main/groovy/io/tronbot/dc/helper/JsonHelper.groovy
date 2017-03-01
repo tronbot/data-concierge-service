@@ -36,12 +36,16 @@ class JsonHelper{
 		return jsonString ? gson.fromJson(jsonString, new TypeToken<HashMap<String, Object>>(){}.getType()) : null
 	}
 
-	public <T> T from(String json, T obj) {
-		return jsonPathReflector.from(json, obj)
+	public <T> T from(String json, T obj, String... paths) {
+		if(paths){
+			return from(read(json, paths.join('.')), obj)
+		}else{
+			return jsonPathReflector.from(json, obj)
+		}
 	}
 
-	public <T> T from(Map<String, Object> json, T obj) {
-		return from(mapToString(json), obj)
+	public <T> T from(Map<String, Object> json, T obj, String... paths) {
+		return from(mapToString(json), obj, paths)
 	}
 
 	public <T> T read(String json, String jsonPath, Predicate... filters) {

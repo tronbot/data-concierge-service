@@ -83,11 +83,11 @@ class Receiver implements Emitter{
 	@ServiceActivator(inputChannel=Emitter.saveOrUpdatePhysician)
 	public Physician saveOrUpdatePhysician(Physician physician) {
 		log.debug "Saving Hospital: ${ToStringBuilder.reflectionToString(physician)}"
-		//Delete the existing Physician
 		Physician p = physicianRepository.findUnique(physician.getNpi(), physician.getFirstName(), physician.getLastName(), physician.getPlace().getLatitude(), physician.getPlace().getLongitude())?.find()
 		if(p){
-			physicianRepository.delete(p)
+			return p
+		}else{
+			return physicianRepository.save(physician)
 		}
-		return physicianRepository.save(physician)
 	}
 }

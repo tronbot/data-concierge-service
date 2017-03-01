@@ -93,7 +93,7 @@ public class ReconciliationService{
 			keywords = "${address}, ${city}, ${state}"
 			placeId = json.read(queryPlaces(keywords), '$.results[0].place_id')
 		}
-		return json.from(queryPlaceDetail(placeId), new Place())
+		return json.from(queryPlaceDetail(placeId), new Place(), '$.result')
 	}
 
 	private Double soccerPhysicians(final Physician physician,
@@ -142,9 +142,11 @@ public class ReconciliationService{
 		String placeId = json.read(queryPlaces(physician.keywords()), '$.results[0].place_id')
 		if(!placeId){
 			log.info("Unable to find Physician[${physician.npi}] by keywords[${physician.keywords()}] in google, getting street address by [${physician.getAddressString()}] instead.")
-			placeId = json.read(queryPlaces(physician.getAddressString()), '$.results[0].place_id')
+			return json.from(queryAddress(physician.getAddressString()), new Place(), '$.results[0]')
+		}else{
+			
+			return json.from(queryPlaceDetail(placeId), new Place(), '$.result')
 		}
-		return json.from(queryPlaceDetail(placeId), new Place())
 	}
 
 	/**
@@ -165,7 +167,7 @@ public class ReconciliationService{
 			log.info("${hospitalPids.size()} results found for ${keywords}")
 			hospitalPids.each{ pid ->
 				Hospital h = new Hospital()
-				BeanUtils.copyProperties(h, json.from(queryPlaceDetail(pid), new Place()))
+				BeanUtils.copyProperties(h, json.from(queryPlaceDetail(pid), new Place(), '$.result'))
 				hospitals.add(h)
 				emitter.saveOrUpdateHospital(h)
 			}
@@ -204,7 +206,7 @@ public class ReconciliationService{
 		if(!pid){
 			return null
 		}
-		Place place = json.from(queryPlaceDetail(pid), new Place())
+		Place place = json.from(queryPlaceDetail(pid), new Place(), '$.result')
 		emitter.saveOrUpdatePlace(place)
 		return place
 	}
@@ -217,6 +219,15 @@ public class ReconciliationService{
 	public Map<String, Object>  queryPlaces(String keywords, Type type){
 		keywords = StringHelper.groomKeywords(keywords)
 		return keywords ? googleMaps.query(keywords, type) : null
+	}
+
+	/**
+	 * @param keywords
+	 * @return JSON String of google places
+	 */
+	public Map<String, Object>  queryAddress(String keywords){
+		keywords = StringHelper.groomKeywords(keywords)
+		return keywords ? googleMaps.address(keywords) : null
 	}
 
 	/**

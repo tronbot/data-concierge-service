@@ -13,6 +13,9 @@ class StringHelper {
 	 * @return keywords without 'null', multi whitespace, multi tab, multi backslash.
 	 */
 	public static String groomKeywords(String keywords){
+		if(!keywords){
+			return ''
+		}
 		return keywords.toLowerCase().replace('\t', ' ').replaceAll('null', '').replaceAll('\\W -,.&', '').replace(', ', ',').trim().replaceAll(' +', ' ')
 	}
 

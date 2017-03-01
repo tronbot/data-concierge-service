@@ -23,7 +23,7 @@ public interface GoogleMapsClient {
 	@Cacheable(value = 'persistableCache', keyGenerator = 'feignCacheKeyGenerator')
 	@GetMapping(value = 'place/textsearch/json?key=${google.places.api.key}&query={keywords}')
 	Map<String, Object> query(@PathVariable('keywords') String keywords)
-
+	
 	@Cacheable(value = 'persistableCache', keyGenerator = 'feignCacheKeyGenerator')
 	@GetMapping(value = 'place/details/json?key=${google.places.api.key}&placeid={place_id}')
 	Map<String, Object> detail(@PathVariable('place_id') String placeId)
@@ -32,4 +32,8 @@ public interface GoogleMapsClient {
 	@Cacheable(value = 'persistableCache', keyGenerator = 'feignCacheKeyGenerator')
 	@GetMapping(value = 'distancematrix/json?key=${google.maps.api.key}&origins={origins}&destinations={destinations}')
 	Map<String, Object> distance(@PathVariable('origins') String origins,@PathVariable('destinations') String destinations)
+	
+	@Cacheable(value = 'persistableCache', keyGenerator = 'feignCacheKeyGenerator')
+	@GetMapping(value = 'geocode/json?address={address}')
+	Map<String, Object> address(@PathVariable('address') String address)
 }

@@ -1,5 +1,6 @@
 package io.tronbot.dc.web.rest
 
+import org.apache.commons.lang3.StringUtils
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -91,9 +92,13 @@ class ReconciliationController {
 			//			@RequestParam(value='postalCode', required=false) String postalCode,
 			//			@RequestParam(value='phoneNumber', required=false) String phoneNumber)
 	{
-		List<String> breakdowns = StringHelper.groomKeywords(keywords).split(',') as List
-		String firstName = breakdowns[0]
-		String lastName = breakdowns[1]
+		keywords = StringHelper.groomKeywords(keywords)
+		if(!keywords){
+			return Reconciliation.resp(null)
+		}
+		List<String> breakdowns = keywords.split(',') as List<String>
+		String firstName = (breakdowns[0]?.split(' ') as List).find()
+		String lastName = (breakdowns[1]?.split(' ') as List).find()
 		String address = breakdowns[2]
 		String city = breakdowns[3]
 		String state = breakdowns[4]
@@ -102,6 +107,9 @@ class ReconciliationController {
 		if(!firstName || !lastName || !address || !city || !state ){
 			return Reconciliation.resp(null)
 		}else{
+			firstName =breakdowns[0]?.split(' ')[0]
+			lastName = breakdowns[1]?.split(' ')[0]
+	
 			Object result = service.physicians(firstName,lastName,address,city,state,postalCode,phoneNumber)
 			return Reconciliation.resp(result)
 		}

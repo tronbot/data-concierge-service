@@ -21,7 +21,6 @@ import io.tronbot.dc.domain.Physician
 import io.tronbot.dc.domain.Place
 import io.tronbot.dc.domain.Place.Type
 import io.tronbot.dc.helper.JsonHelper
-import io.tronbot.dc.service.ReconciliationService
 import io.tronbot.dc.utils.StringHelper
 
 /**
@@ -33,11 +32,11 @@ class Tester {
 	static final Gson gson = new Gson()
 	static final JsonPathReflector jsonPathReflector = new JsonPathReflector(Configuration.defaultConfiguration())
 	static final JsonHelper jsonHelper = new JsonHelper(gson, jsonPathReflector)
-
+	@Test
 	public void testGooglePlaces(){
 		//Google Places
 		String keywords = "ucsd emer physicians thornton,9300 campus point dr,la jolla,ca"
-		String placesURL = "https://maps.googleapis.com/maps/api/place/textsearch/json?key=AIzaSyCzR2RLfJp-fF1Ui0tPRwKXLNWTDXDUu3E&query=${URLEncoder.encode(ReconciliationService.groomKeywords(keywords), 'UTF-8')}"
+		String placesURL = "https://maps.googleapis.com/maps/api/place/textsearch/json?key=AIzaSyCzR2RLfJp-fF1Ui0tPRwKXLNWTDXDUu3E&query=${URLEncoder.encode(StringHelper.groomKeywords(keywords), 'UTF-8')}"
 		Map<String, Object> jsonMap = jsonHelper.stringToMap(IOUtils.toString(new URL(placesURL), Charset.defaultCharset()))
 		String jsonStr = jsonHelper.mapToString(jsonMap)
 		println jsonMap
@@ -59,11 +58,10 @@ class Tester {
 			//Query Place Detail
 			String placeDetailURL = "https://maps.googleapis.com/maps/api/place/details/json?key=AIzaSyCzR2RLfJp-fF1Ui0tPRwKXLNWTDXDUu3E&placeid=${pid}"
 			println "Query URL: ${placeDetailURL}"
-			Place place = jsonHelper.from(IOUtils.toString(new URL(placeDetailURL)), new Place())
+			Place place = jsonHelper.from(IOUtils.toString(new URL(placeDetailURL)), new Place(), '$.result')
 			places << place
 			println ReflectionToStringBuilder.toString(place)
 		}
-
 		//Bean clone
 		println Objects.equals(places[0], places[1])
 		println ReflectionToStringBuilder.toString(places[0])
@@ -72,7 +70,7 @@ class Tester {
 		println Objects.equals(places[0], places[1])
 	}
 
-	
+
 	public void testNPIRanking(){
 		final String firstName = 'Douglas'
 		final String lastName = 'Nguyen'
@@ -120,12 +118,12 @@ class Tester {
 		Double soccer = 0
 		// if check if phone number match
 		if(phoneNumber && physician.getPhoneNumber() && StringUtils.equals(stripPhoneNumber(phoneNumber), stripPhoneNumber(physician.getPhoneNumber()))){
-			return soccer 
+			return soccer
 		}
-//		if(postalCode && physician.getAddress().getPostalCode() && StringUtils.equals(firstFiveZip(postalCode), firstFiveZip(physician.getAddress().getPostalCode()))){
-//			soccer -= 10000
-//		}
-		final String origins = ReconciliationService.groomKeywords(URLEncoder.encode("${address}, ${city}, ${state}, ${postalCode}", 'UTF-8'))
+		//		if(postalCode && physician.getAddress().getPostalCode() && StringUtils.equals(firstFiveZip(postalCode), firstFiveZip(physician.getAddress().getPostalCode()))){
+		//			soccer -= 10000
+		//		}
+		final String origins = StringHelper.groomKeywords(URLEncoder.encode("${address}, ${city}, ${state}, ${postalCode}", 'UTF-8'))
 		final String destinations = URLEncoder.encode(physician.getAddressString(), 'UTF-8')
 		String distanceURL = "https://maps.googleapis.com/maps/api/distancematrix/json?key=AIzaSyDtjzZV79yvZeVKaXiLQghUvIBaWLnYZeY&origins=${origins}&destinations=${destinations}"
 		Integer distance = jsonHelper.read(IOUtils.toString(new URL(distanceURL)), '$.rows[0].elements[0].distance.value')
@@ -176,21 +174,45 @@ class Tester {
 		}
 	}
 
-	@Test
 	public void testKeywords(){
-		String str = StringHelper.groomKeywords("PHILLIP, REICH,9300 campus point dr,la jolla,ca,92037,858-554-9100")
-		List strs = str.split(',') as List
-		String firstName = ''
-		if(firstName){
-			println 'fisrt name exists'
-		}else{
-			println 'fisrt name is null'
+		String keywords = StringHelper.groomKeywords('Robin')
+		if(!keywords){
+			println 'No keywords... return!!'
+			return
 		}
+
+		List<String> breakdowns = keywords.split(',') as List<String>
+		String firstName = (breakdowns[0]?.split(' ') as List).find()
+		String lastName = (breakdowns[1]?.split(' ') as List).find()
+		String address = breakdowns[2]
+		String city = breakdowns[3]
+		String state = breakdowns[4]
+		String postalCode = breakdowns[5]
+		String phoneNumber = breakdowns[6]
+		println firstName
+		println lastName
+		println address
+		println city
+		println state
+		println postalCode
+		println phoneNumber
 	}
-	
+
+	@Test
+	public void testAddress(){
+		String address = '911 Sunset Dr,Hollister,CA'
+		String geocodeURL = "https://maps.googleapis.com/maps/api/geocode/json?address=${URLEncoder.encode(address, 'UTF-8')}"
+		Place place = jsonHelper.from(IOUtils.toString(new URL(geocodeURL), 'UTF-8'), new Place(), '$.results[0]')
+		println ToStringBuilder.reflectionToString(place)
+		Object res = jsonHelper.read(IOUtils.toString(new URL(geocodeURL), 'UTF-8'), '$.results[0]')
+		Place place2 = jsonHelper.from(res, new Place())
+		println ToStringBuilder.reflectionToString(place2)
+
+	}
+
 	public void tempTest(){
-		String keywords = 'CHORNG LII , HWANG , 81709 DR CARREON BLVD, INDIO, CA, 92201'
-		keywords = ReconciliationService.groomKeywords(keywords);
+		String keywords = 'Robin,Zasio Kipp,9300 Tech Center Dr,Sacramento,CA'
+		keywords = StringHelper.groomKeywords(keywords);
 
 		String firstName = keywords.split(',')[0].trim()
 		String lastName = keywords.split(',')[1].trim()

@@ -1,5 +1,6 @@
 package io.tronbot.dc.domain
 
+import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
@@ -23,7 +24,7 @@ import io.tronbot.dc.common.json.JsonPathElement
 @Entity
 @Table(name='dc_place', indexes = [@Index(name = 'IDX_PLACE', columnList = 'placeId')])
 @Inheritance(strategy = InheritanceType.JOINED)
-@JsonPathElement('$.result')
+//@JsonPathElement('$.result')
 class Place {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -35,6 +36,7 @@ class Place {
 	@JsonPathElement('$.name')
 	String name
 	@JsonPathElement('$.website')
+	@Column(length=512)
 	String website
 	@JsonPathElement('$.url')
 	String googleMapURL
