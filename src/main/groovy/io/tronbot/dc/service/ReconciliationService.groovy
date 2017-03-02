@@ -12,6 +12,7 @@ import io.tronbot.dc.domain.Hospital
 import io.tronbot.dc.domain.Physician
 import io.tronbot.dc.domain.Place
 import io.tronbot.dc.domain.Place.Type
+import io.tronbot.dc.helper.GeoHelper
 import io.tronbot.dc.helper.JsonHelper
 import io.tronbot.dc.messaging.Emitter
 import io.tronbot.dc.utils.StringHelper
@@ -45,6 +46,8 @@ public class ReconciliationService{
 	 */
 	public Collection<Physician> physicians(String firstName, String lastName, String address, String city, String state, String postalCode, String phoneNumber){
 		Map<Double, Physician> physicians = new TreeMap()
+		final Place origins = json.from(queryAddress(StringHelper.groomKeywords("${address}, ${city}, ${state}, ${postalCode}")), new Place(), '$.results[0]')
+		// Query NPI Registry
 		NPIQuery query = new NPIQuery()
 		query.setFirstName(firstName)
 		query.setLastName(lastName)
@@ -63,6 +66,7 @@ public class ReconciliationService{
 			npis = json.read(npiRegistry.query(query), '$.results')
 		}
 
+
 		npis.any { npi ->
 			Physician physician = json.from(npi, new Physician())
 			if(query.getState()){
@@ -73,8 +77,8 @@ public class ReconciliationService{
 				physician.setPlace(resolvePlaceForPhysician(physician))
 				physicians.put(soccer + Math.random(), physician)
 				emitter.saveOrUpdatePhysician(physician)
-				if(soccer < 300){
-					// since we found the matching phone number return there
+				if(soccer < 500){
+					// since we found the matching phone number or address within 500 meters consider as address matching
 					return true
 				}
 			}else{
@@ -98,22 +102,15 @@ public class ReconciliationService{
 	}
 
 	private Double soccerPhysicians(final Physician physician,
-			final String firstName,
-			final String lastName,
-			final String address,
-			final String city,
-			final String state,
-			final String postalCode,
-			final String phoneNumber){
+	Place origins,
+	final String phoneNumber){
 		Double soccer = 0
 		// if check if phone number match
 		if(phoneNumber && physician.getPhoneNumber()
 		&& StringUtils.equals(StringHelper.stripPhoneNumber(phoneNumber), StringHelper.stripPhoneNumber(physician.getPhoneNumber()))){
 			return soccer
 		}
-		final String origins = StringHelper.groomKeywords("${address}, ${city}, ${state}, ${postalCode}")
-		final String destinations = StringHelper.groomKeywords(physician.getAddressString())
-		Integer distance = json.read(googleMaps.distance(origins, destinations), '$.rows[0].elements[0].distance.value')
+		Integer distance = GeoHelper.distance(origins, physician.getPlace())
 		return soccer += distance?distance:150000
 	}
 
@@ -145,7 +142,7 @@ public class ReconciliationService{
 			log.info("Unable to find Physician[${physician.npi}] by keywords[${physician.keywords()}] in google, getting street address by [${physician.getAddressString()}] instead.")
 			return json.from(queryAddress(physician.getAddressString()), new Place(), '$.results[0]')
 		}else{
-			
+
 			return json.from(queryPlaceDetail(placeId), new Place(), '$.result')
 		}
 	}

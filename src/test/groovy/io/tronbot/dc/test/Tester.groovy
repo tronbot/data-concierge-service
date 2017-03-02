@@ -20,6 +20,7 @@ import io.tronbot.dc.common.json.PostalCodeInterpreter
 import io.tronbot.dc.domain.Physician
 import io.tronbot.dc.domain.Place
 import io.tronbot.dc.domain.Place.Type
+import io.tronbot.dc.helper.GeoHelper
 import io.tronbot.dc.helper.JsonHelper
 import io.tronbot.dc.utils.StringHelper
 
@@ -31,22 +32,22 @@ import io.tronbot.dc.utils.StringHelper
 class Tester {
 	static final Gson gson = new Gson()
 	static final JsonPathReflector jsonPathReflector = new JsonPathReflector(Configuration.defaultConfiguration())
-	static final JsonHelper jsonHelper = new JsonHelper(gson, jsonPathReflector)
-	@Test
+	static final JsonHelper json = new JsonHelper(gson, jsonPathReflector)
+	//	@Test
 	public void testGooglePlaces(){
 		//Google Places
 		String keywords = "ucsd emer physicians thornton,9300 campus point dr,la jolla,ca"
 		String placesURL = "https://maps.googleapis.com/maps/api/place/textsearch/json?key=AIzaSyCzR2RLfJp-fF1Ui0tPRwKXLNWTDXDUu3E&query=${URLEncoder.encode(StringHelper.groomKeywords(keywords), 'UTF-8')}"
-		Map<String, Object> jsonMap = jsonHelper.stringToMap(IOUtils.toString(new URL(placesURL), Charset.defaultCharset()))
-		String jsonStr = jsonHelper.mapToString(jsonMap)
+		Map<String, Object> jsonMap = json.stringToMap(IOUtils.toString(new URL(placesURL), Charset.defaultCharset()))
+		String jsonStr = json.mapToString(jsonMap)
 		println jsonMap
 		println jsonStr
-		println jsonHelper.stringToMap(null)
-		println jsonHelper.mapToString(null)
-		println jsonHelper.stringToMap("")
-		println jsonHelper.mapToString(new HashMap<String,Object>())
+		println json.stringToMap(null)
+		println json.mapToString(null)
+		println json.stringToMap("")
+		println json.mapToString(new HashMap<String,Object>())
 		println Type.insurance_agency
-		List<String> placeIds = jsonHelper.read(jsonMap, '$.results[*].place_id')
+		List<String> placeIds = json.read(jsonMap, '$.results[*].place_id')
 		List<Place> places = new ArrayList()
 		if(placeIds){
 			println "${placeIds.size()} results ${placeIds} found for ${keywords}"
@@ -58,7 +59,7 @@ class Tester {
 			//Query Place Detail
 			String placeDetailURL = "https://maps.googleapis.com/maps/api/place/details/json?key=AIzaSyCzR2RLfJp-fF1Ui0tPRwKXLNWTDXDUu3E&placeid=${pid}"
 			println "Query URL: ${placeDetailURL}"
-			Place place = jsonHelper.from(IOUtils.toString(new URL(placeDetailURL)), new Place(), '$.result')
+			Place place = json.from(IOUtils.toString(new URL(placeDetailURL)), new Place(), '$.result')
 			places << place
 			println ReflectionToStringBuilder.toString(place)
 		}
@@ -82,14 +83,14 @@ class Tester {
 
 		Map<Double, Physician> physicians = new TreeMap()
 		String npiURL = "https://npiregistry.cms.hhs.gov/api?number=&enumeration_type=NPI-1&taxonomy_description=&first_name=${firstName}&last_name=${lastName}&organization_name=&address_purpose=&city=${city}&state=${state}&postal_code=${postalCode}&country_code=US&limit=200&skip=&pretty="
-		List npis = jsonHelper.read(IOUtils.toString(new URL(npiURL)), '$.results')
+		List npis = json.read(IOUtils.toString(new URL(npiURL)), '$.results')
 		if(!npis){
 			npiURL = "https://npiregistry.cms.hhs.gov/api?number=&enumeration_type=NPI-1&taxonomy_description=&first_name=${firstName}&last_name=${lastName}&organization_name=&address_purpose=&city=&state=${state}&postal_code=&country_code=US&limit=200&skip=&pretty="
-			npis = jsonHelper.read(IOUtils.toString(new URL(npiURL)), '$.results')
+			npis = json.read(IOUtils.toString(new URL(npiURL)), '$.results')
 		}
 
 		npis.any { npi ->
-			Physician physician = jsonHelper.from(npi, new Physician())
+			Physician physician = json.from(npi, new Physician())
 			Double soccer = 0d
 			if(npis.size() > 1){
 				soccer = soccerPhysicians(physician,firstName,lastName,address,city,state,postalCode,phoneNumber )
@@ -126,7 +127,7 @@ class Tester {
 		final String origins = StringHelper.groomKeywords(URLEncoder.encode("${address}, ${city}, ${state}, ${postalCode}", 'UTF-8'))
 		final String destinations = URLEncoder.encode(physician.getAddressString(), 'UTF-8')
 		String distanceURL = "https://maps.googleapis.com/maps/api/distancematrix/json?key=AIzaSyDtjzZV79yvZeVKaXiLQghUvIBaWLnYZeY&origins=${origins}&destinations=${destinations}"
-		Integer distance = jsonHelper.read(IOUtils.toString(new URL(distanceURL)), '$.rows[0].elements[0].distance.value')
+		Integer distance = json.read(IOUtils.toString(new URL(distanceURL)), '$.rows[0].elements[0].distance.value')
 		return soccer += distance?distance:150000
 	}
 
@@ -164,9 +165,9 @@ class Tester {
 		println npiQuery
 
 		String npiURL = 'https://npiregistry.cms.hhs.gov/api?number=1629040878'
-		List providers = jsonHelper.read(IOUtils.toString(new URL(npiURL)), '$.results[*]')
+		List providers = json.read(IOUtils.toString(new URL(npiURL)), '$.results[*]')
 		providers.each { pJson ->
-			Physician p = jsonHelper.from(pJson, new Physician())
+			Physician p = json.from(pJson, new Physician())
 			Assert.assertTrue(StringUtils.equals(q.getLastName(),p.getLastName()));
 			println p.keywords()
 			println p.getAddressString()
@@ -198,16 +199,38 @@ class Tester {
 		println phoneNumber
 	}
 
+
+	private Place getPlace(String address){
+		String geocodeURL = "https://maps.googleapis.com/maps/api/geocode/json?address="+URLEncoder.encode(address, 'UTF-8')
+		return json.from(IOUtils.toString(new URL(geocodeURL), 'UTF-8'), new Place(), '$.results[0]')
+	}
+
+	private Integer getDistanceByGoogle(String origins, String destinations){
+		String distanceURL = "https://maps.googleapis.com/maps/api/distancematrix/json?key=AIzaSyDtjzZV79yvZeVKaXiLQghUvIBaWLnYZeY&origins=${URLEncoder.encode(origins, 'UTF-8')}&destinations=${URLEncoder.encode(destinations, 'UTF-8')}"
+		return json.read(IOUtils.toString(new URL(distanceURL), 'UTF-8'), '$.rows[0].elements[0].distance.value')
+	}
+
+
 	@Test
+	public void testGeocode(){
+		String origins = '123 main st, reisterstown, md, 21136'
+		String destinations = '6455 Irvine Center Dr, Irvine, CA 92618'
+		Place originsPlace = getPlace(origins)
+		Place destinationsPlace = getPlace(destinations)
+		Integer distance = getDistanceByGoogle(origins, destinations)
+		println "Geohelp distance: ${GeoHelper.distance(originsPlace, destinationsPlace)}"
+		println "Google Map distance: ${distance}"
+	}
+
+
 	public void testAddress(){
 		String address = '911 Sunset Dr,Hollister,CA'
-		String geocodeURL = "https://maps.googleapis.com/maps/api/geocode/json?address=${URLEncoder.encode(address, 'UTF-8')}"
-		Place place = jsonHelper.from(IOUtils.toString(new URL(geocodeURL), 'UTF-8'), new Place(), '$.results[0]')
+		String geocodeURL = "https://maps.googleapis.com/maps/api/geocode/json?address="+URLEncoder.encode(address, 'UTF-8')
+		Place place = json.from(IOUtils.toString(new URL(geocodeURL), 'UTF-8'), new Place(), '$.results[0]')
 		println ToStringBuilder.reflectionToString(place)
-		Object res = jsonHelper.read(IOUtils.toString(new URL(geocodeURL), 'UTF-8'), '$.results[0]')
-		Place place2 = jsonHelper.from(res, new Place())
+		Object res = json.read(IOUtils.toString(new URL(geocodeURL), 'UTF-8'), '$.results[0]')
+		Place place2 = json.from(res, new Place())
 		println ToStringBuilder.reflectionToString(place2)
-
 	}
 
 	public void tempTest(){
