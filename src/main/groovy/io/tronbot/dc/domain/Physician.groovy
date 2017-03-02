@@ -16,6 +16,7 @@ import io.tronbot.dc.common.json.ArrayToSingleInterpreter
 import io.tronbot.dc.common.json.IntegerInterpreter
 import io.tronbot.dc.common.json.JsonPathElement
 import io.tronbot.dc.common.json.PostalCodeInterpreter
+import io.tronbot.dc.domain.Place.Type
 
 /**
  * @author <a href="mailto:juanyong.zhang@gmail.com">Juanyong Zhang</a> 
@@ -89,6 +90,10 @@ class Physician{
 	@JsonIgnore
 	String getAddressString(){
 		return "${address?.address1},${address?.city},${address?.state}"
+	}
+	@JsonIgnore
+	Type[] getTypes(){
+		return [Type.doctor, Type.dentist, Type.physiotherapist]
 	}
 }
 

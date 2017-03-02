@@ -139,7 +139,7 @@ public class ReconciliationService{
 		if(!physician){
 			return null
 		}
-		String placeId = json.read(queryPlaces(physician.keywords()), '$.results[0].place_id')
+		String placeId = json.read(queryPlaces(physician.keywords(), physician.getTypes()), '$.results[0].place_id')
 		if(!placeId){
 			log.info("Unable to find Physician[${physician.npi}] by keywords[${physician.keywords()}] in google, getting street address by [${physician.getAddressString()}] instead.")
 			return json.from(queryAddress(physician.getAddressString()), new Place(), '$.results[0]')
@@ -216,9 +216,9 @@ public class ReconciliationService{
 	 * @param keywords
 	 * @return JSON String of google places
 	 */
-	public Map<String, Object>  queryPlaces(String keywords, Type type){
+	public Map<String, Object>  queryPlaces(String keywords, Type... types){
 		keywords = StringHelper.groomKeywords(keywords)
-		return keywords ? googleMaps.query(keywords, type) : null
+		return keywords ? googleMaps.query(keywords, types) : null
 	}
 
 	/**
@@ -228,15 +228,6 @@ public class ReconciliationService{
 	public Map<String, Object>  queryAddress(String keywords){
 		keywords = StringHelper.groomKeywords(keywords)
 		return keywords ? googleMaps.address(keywords) : null
-	}
-
-	/**
-	 * @param keywords
-	 * @return JSON String of google places
-	 */
-	public Map<String, Object>  queryPlaces(String keywords){
-		keywords = StringHelper.groomKeywords(keywords)
-		return keywords ? googleMaps.query(keywords) : null
 	}
 
 	/**
