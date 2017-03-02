@@ -78,6 +78,7 @@ public class ReconciliationService{
 					return true
 				}
 			}else{
+				// Out of states? no ranking!!
 				physician.setPlace(resolvePlaceForPhysician(physician))
 				physicians.put(100000000*Math.random()+Math.random(), physician)
 				emitter.saveOrUpdatePhysician(physician)
