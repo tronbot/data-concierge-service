@@ -46,7 +46,7 @@ public class ReconciliationService{
 	 */
 	public Collection<Physician> physicians(String firstName, String lastName, String address, String city, String state, String postalCode, String phoneNumber){
 		Map<Double, Physician> physicians = new TreeMap()
-		final Place origins = json.from(queryAddress(StringHelper.groomKeywords("${address}, ${city}, ${state}, ${postalCode}")), new Place(), '$.results[0]')
+		Place origins = null
 		// Query NPI Registry
 		NPIQuery query = new NPIQuery()
 		query.setFirstName(firstName)
@@ -56,23 +56,24 @@ public class ReconciliationService{
 		query.setPostalCode(postalCode)
 		List npis = json.read(npiRegistry.query(query), '$.results')
 		if(!npis){
+			//fall back call for name and state 
 			query.setCity('')
 			query.setPostalCode('')
 			npis = json.read(npiRegistry.query(query), '$.results')
 		}
 		if(!npis){
+			//fall back call for state only
 			query.setState('')
 			query.setLimit(20)
 			npis = json.read(npiRegistry.query(query), '$.results')
 		}
-
-
 		npis.any { npi ->
 			Physician physician = json.from(npi, new Physician())
 			if(query.getState()){
 				Double soccer = 0d
 				if(npis.size() > 1){
-					soccer = soccerPhysicians(physician,firstName,lastName,address,city,state,postalCode,phoneNumber)
+					origins = json.from(queryAddress(StringHelper.groomKeywords("${address}, ${city}, ${state}, ${postalCode}")), new Place(), '$.results[0]')
+					soccer = soccerPhysicians(physician,origins,phoneNumber)
 				}
 				physician.setPlace(resolvePlaceForPhysician(physician))
 				physicians.put(soccer + Math.random(), physician)
@@ -84,7 +85,7 @@ public class ReconciliationService{
 			}else{
 				// Out of states? no ranking!!
 				physician.setPlace(resolvePlaceForPhysician(physician))
-				physicians.put(100000000*Math.random()+Math.random(), physician)
+				physicians.put(GeoHelper.MAX_DISTANCE*10*Math.random()+Math.random(), physician)
 				emitter.saveOrUpdatePhysician(physician)
 			}
 		}
@@ -101,9 +102,7 @@ public class ReconciliationService{
 		return json.from(queryPlaceDetail(placeId), new Place(), '$.result')
 	}
 
-	private Double soccerPhysicians(final Physician physician,
-	Place origins,
-	final String phoneNumber){
+	private Double soccerPhysicians(final Physician physician, final Place origins, final String phoneNumber){
 		Double soccer = 0
 		// if check if phone number match
 		if(phoneNumber && physician.getPhoneNumber()
@@ -111,7 +110,7 @@ public class ReconciliationService{
 			return soccer
 		}
 		Integer distance = GeoHelper.distance(origins, physician.getPlace())
-		return soccer += distance?distance:150000
+		return soccer += distance?distance:GeoHelper.MAX_DISTANCE
 	}
 
 	/**
@@ -244,6 +243,4 @@ public class ReconciliationService{
 	public Map<String, Object> queryNpi(NPIQuery q){
 		return q ? npiRegistry.query(q) : null
 	}
-
-
 }

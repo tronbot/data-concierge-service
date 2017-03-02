@@ -7,27 +7,32 @@ import io.tronbot.dc.domain.Place
  * @date Mar 2, 2017
  */
 public class GeoHelper {
+	
+	public static final int MAX_DISTANCE = 20036000
 
+	/**
+	 * 
+	 * @param p1
+	 * @param p2
+	 * @return METERS of distance
+	 */
 	public static Integer distance(Place p1, Place p2) {
 		if(!p1 || !p2){
-			return 100000000
+			return MAX_DISTANCE
 		}
-
-
 		return distance(p1.getLatitude(), p1.getLongitude(), p2.getLatitude(), p2.getLongitude())
 	}
 
 	/**
 	 * @param lat1
-	 * @param lon1
+	 * @param lng1
 	 * @param lat2
-	 * @param lon2
-	 * @param unit
-	 * @return Kilometers of distance
+	 * @param lng2
+	 * @return METERS of distance
 	 */
 	public static Integer distance(Double lat1, Double lng1, Double lat2, Double lng2) {
 		if(!lat1 || !lat2 || !lng1 || !lng2 ){
-			return 100000000
+			return MAX_DISTANCE
 		}
 		Integer r = 6371 // average radius of the earth in km
 		Double dLat = Math.toRadians(lat2 - lat1)
