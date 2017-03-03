@@ -31,6 +31,7 @@ class FeignCacheKeyGenerator implements KeyGenerator{
 	 */
 	@Override
 	public Object generate(Object target, Method method, Object... params) {
+		List<Object> paramLst = params as List
 		Class<?> targetType = target.getClass()
 		//get url parts from feign client annotation on the class
 		FeignClient clzFeign= findMergedAnnotation(targetType,
@@ -57,8 +58,7 @@ class FeignCacheKeyGenerator implements KeyGenerator{
 			String placeholder = findMergedAnnotation(param, PathVariable.class)?.value() ?
 					findMergedAnnotation(param, PathVariable.class)?.value() : findMergedAnnotation(param, RequestParam.class)?.value()
 			if(placeholder){
-				//				key = key.replaceAll("\\{(.+)\\}", SimpleKeyGenerator.generateKey(params).toString()) // FIXME current only handle single parameter
-				key = key.replaceAll("\\{${placeholder}\\}", params[idx] ? params[idx].toString() : '')
+				key = key.replaceAll("\\{${placeholder}\\}", paramLst[idx] ? paramLst[idx].toString() : '')
 			}
 		}
 		return key

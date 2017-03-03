@@ -169,7 +169,7 @@ public class ReconciliationService{
 				emitter.saveOrUpdateHospital(h)
 			}
 		}else{
-			log.warn("No result found for : ${keywords}")
+			log.warn("No hospitals found for : ${keywords}")
 		}
 		return hospitals
 	}
@@ -178,19 +178,19 @@ public class ReconciliationService{
 	 * @param keywords - business name, street, city, state, zip
 	 * @return List of google places
 	 */
-	public List<Place> places(String keywords){
+	public List<Place> places(String keywords, Type... types){
 		List<Place> places = new ArrayList()
 		if(!keywords){
 			return places
 		}
-		List<String> placeIds =  json.read(queryPlaces(keywords), '$.results[*].place_id')
+		List<String> placeIds =  json.read(queryPlaces(keywords, types), '$.results[*].place_id')
 		if(placeIds){
 			log.info("${placeIds.size()} results found for ${keywords}")
 			placeIds.each{ pid ->
 				places.add(placeDetail(pid))
 			}
 		}else{
-			log.warn("No result found for : ${keywords}")
+			log.warn("No places found for : ${keywords}")
 		}
 		return places
 	}
