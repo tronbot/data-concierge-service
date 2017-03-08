@@ -2,6 +2,8 @@ package io.tronbot.dc.config
 
 import java.nio.file.Paths
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.EnableCaching
@@ -19,14 +21,13 @@ import com.hazelcast.config.MaxSizeConfig
 import com.hazelcast.core.Hazelcast
 import com.hazelcast.core.HazelcastInstance
 
-import groovy.util.logging.Log4j
 import io.tronbot.dc.service.RequestHistoryStore
 
 @Configuration
 @EnableCaching
-@Log4j
 public class CacheConfiguration {
-
+	private static final Logger log = LoggerFactory.getLogger(DiscoveryClient.class);
+	
 	@Autowired
 	private Environment env
 	@Autowired
