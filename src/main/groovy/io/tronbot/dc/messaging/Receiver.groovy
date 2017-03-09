@@ -55,14 +55,15 @@ class Receiver implements Emitter{
 
 	@ServiceActivator(inputChannel=Emitter.saveOrUpdatePlace)
 	public Place saveOrUpdatePlace(Place place) {
-		log.debug "Saving Place: ${ToStringBuilder.reflectionToString(place)}"
 		Place p = placeRepository.findByPlaceId(place.getPlaceId())?.find()
 		if(p){
 			//Update place
-			place.setId(p.getId())
-			BeanUtils.copyProperties(p, place)
-			return placeRepository.save(p)
+			//			place.setId(p.getId())
+			//			BeanUtils.copyProperties(p, place)
+			//			return placeRepository.save(p)
+			return p
 		}else{
+			log.debug "Saving Place: ${ToStringBuilder.reflectionToString(place)}"
 			//Save new place
 			return placeRepository.save(place)
 		}
@@ -70,23 +71,22 @@ class Receiver implements Emitter{
 
 	@ServiceActivator(inputChannel=Emitter.saveOrUpdateHospital)
 	public Hospital saveOrUpdateHospital(Hospital hospital) {
-		log.debug "Saving Hospital: ${ToStringBuilder.reflectionToString(hospital)}"
 		Hospital h = hospitalRepository.findByPlaceId(hospital.getPlaceId())?.find()
 		if(h){
-			hospital.setId(h.getId())
-			BeanUtils.copyProperties(h, hospital)
-			return physicianRepository.save(h)
+			return h
+		}else{
+			log.debug "Saving Hospital: ${ToStringBuilder.reflectionToString(hospital)}"
+			return hospitalRepository.save(hospital)
 		}
-		return hospitalRepository.save(hospital)
 	}
 
 	@ServiceActivator(inputChannel=Emitter.saveOrUpdatePhysician)
 	public Physician saveOrUpdatePhysician(Physician physician) {
-		log.debug "Saving Hospital: ${ToStringBuilder.reflectionToString(physician)}"
 		Physician p = physicianRepository.findUnique(physician.getNpi(), physician.getFirstName(), physician.getLastName(), physician.getPlace().getLatitude(), physician.getPlace().getLongitude())?.find()
 		if(p){
 			return p
 		}else{
+			log.debug "Saving Hospital: ${ToStringBuilder.reflectionToString(physician)}"
 			return physicianRepository.save(physician)
 		}
 	}
