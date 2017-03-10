@@ -21,19 +21,19 @@ interface Emitter{
 	public static final String saveOrUpdatePhysician = 'saveOrUpdatePhysician'
 
 	@Async
-	@Gateway(requestChannel = saveOrUpdateRequestHistory)
+	@Gateway(requestChannel = Emitter.saveOrUpdateRequestHistory)
 	RequestHistory saveOrUpdateRequestHistory(RequestHistory requestHistory)
 
 	@Async
-	@Gateway(requestChannel = saveOrUpdatePlace)
+	@Gateway(requestChannel = Emitter.saveOrUpdatePlace)
 	Place saveOrUpdatePlace(Place place)
 
 	@Async
-	@Gateway(requestChannel = saveOrUpdateHospital)
+	@Gateway(requestChannel = Emitter.saveOrUpdateHospital)
 	Hospital saveOrUpdateHospital(Hospital hospital)
 	
 	@Async
-	@Gateway(requestChannel = saveOrUpdatePhysician)
+	@Gateway(requestChannel = Emitter.saveOrUpdatePhysician)
 	Physician saveOrUpdatePhysician(Physician physician)
 }
 
