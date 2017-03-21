@@ -22,7 +22,7 @@ import io.tronbot.dc.domain.Place
 import io.tronbot.dc.domain.Place.Type
 import io.tronbot.dc.helper.GeoHelper
 import io.tronbot.dc.helper.JsonHelper
-import io.tronbot.dc.utils.StringHelper
+import io.tronbot.dc.helper.StringHelper
 
 /**
  * @author <a href="mailto:juanyong.zhang@gmail.com">Juanyong Zhang</a> 

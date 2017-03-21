@@ -3,7 +3,6 @@ package io.tronbot.dc.cache
 import static org.springframework.core.annotation.AnnotatedElementUtils.findMergedAnnotation
 
 import java.lang.annotation.Annotation
-import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Method
 import java.nio.charset.Charset
 
@@ -18,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 
 import com.google.gson.Gson
+
+import io.tronbot.dc.helper.GeneralHelper
 
 /**
  * @author <a href="mailto:juanyong.zhang@gmail.com">Juanyong Zhang</a> 
@@ -63,7 +64,7 @@ class FeignCacheKeyGenerator implements KeyGenerator{
 
 		String reqURL = propertyResolver.resolvePlaceholders(clzFeign.url()+'/'+clzFeign.path()+'/')+mtdReq.value()?.find()
 		method.getParameters().eachWithIndex  { param, idx ->
-			Annotation ann = findMatchAnnotations(param, PathVariable.class, RequestParam.class)
+			Annotation ann = GeneralHelper.findMatchAnnotations(param, PathVariable.class, RequestParam.class)
 			if(ann){
 				reqURL = reqURL.replaceAll("\\{${ann.value()}\\}", paramLst[idx] ? URLEncoder.encode(paramLst[idx].toString(), Charset.defaultCharset().name()) : '')
 			}
@@ -72,7 +73,7 @@ class FeignCacheKeyGenerator implements KeyGenerator{
 
 		String reqData = ''
 		method.getParameters().eachWithIndex  { param, idx ->
-			Annotation ann = findMatchAnnotations(param, RequestBody.class)
+			Annotation ann = GeneralHelper.findMatchAnnotations(param, RequestBody.class)
 			if(ann && paramLst[idx]){
 				reqData = "-d ${gson.toJson(paramLst[idx])} "
 			}
@@ -83,18 +84,5 @@ class FeignCacheKeyGenerator implements KeyGenerator{
 		return requestKey;
 	}
 
-
-	public static Annotation findMatchAnnotations(AnnotatedElement element, Class<?>... annotationTypes) {
-		Annotation a = null
-		if(annotationTypes){
-			for(Class aType : annotationTypes){
-				a = findMergedAnnotation(element, aType)
-				if(a){
-					break
-				}
-			}
-		}
-		return a
-	}
 
 }

@@ -1,4 +1,4 @@
-package io.tronbot.dc.utils
+package io.tronbot.dc.helper
 
 import org.apache.commons.lang3.StringUtils
 

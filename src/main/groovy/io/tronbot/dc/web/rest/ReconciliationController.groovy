@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController
 import groovy.util.logging.Log4j
 import io.tronbot.dc.client.NPIQuery
 import io.tronbot.dc.dto.Reconciliation
+import io.tronbot.dc.helper.StringHelper
 import io.tronbot.dc.service.ReconciliationService
-import io.tronbot.dc.utils.StringHelper
 
 /**
  * placeRaw('business name, address')
