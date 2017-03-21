@@ -1,18 +1,22 @@
 package io.tronbot.dc.client
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.cloud.netflix.feign.FeignClient
-import org.springframework.http.MediaType
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.stereotype.Repository
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+
+import feign.Request
 
 
 /**
  * @author <a href="mailto:juanyong.zhang@gmail.com">Juanyong Zhang</a> 
  * @date Feb 17, 2017
  */
-@FeignClient(name = 'NPIRegistry', url = '${npiregistry.api.url}')
+@FeignClient(name = 'NPIRegistry', url = '${npiregistry.api.url}', configuration = NPIApiFeignConfiguration.class)
 public interface NPIRegistryClient {
 	@Cacheable(value = 'persistableCache', keyGenerator = 'feignCacheKeyGenerator')
 	@GetMapping('api?number={number}&enumeration_type={enumeration_type}&taxonomy_description={taxonomy_description}&first_name={first_name}&last_name={last_name}&organization_name={organization_name}&address_purpose={address_purpose}&city={city}&state={state}&postal_code={postal_code}&country_code={country_code}&limit={limit}&skip={skip}&pretty={pretty}')
@@ -32,6 +36,17 @@ public interface NPIRegistryClient {
 			@PathVariable('pretty') Boolean pretty
 	)
 }
+
+@Configuration
+public class NPIApiFeignConfiguration{
+	@Bean
+	public Request.Options options(@Value('${npiregistry.api.connectTimeoutMillis}') Integer connectTimeoutMillis, 
+								   @Value('${npiregistry.api.readTimeoutMillis}') Integer readTimeoutMillis) {
+		return new Request.Options(connectTimeoutMillis, readTimeoutMillis);
+	}
+}
+
+
 
 public class NPIQuery{
 	String number

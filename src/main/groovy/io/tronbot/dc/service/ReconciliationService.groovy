@@ -215,7 +215,7 @@ public class ReconciliationService{
 	 */
 	public Map<String, Object>  queryPlaces(String keywords, Type... types){
 		keywords = StringHelper.groomKeywords(keywords)
-		return keywords ? googleMaps.query(keywords, types) : null
+		return keywords ? googleMaps.queryPlaces(keywords, types) : null
 	}
 
 	/**
@@ -224,7 +224,7 @@ public class ReconciliationService{
 	 */
 	public Map<String, Object>  queryAddress(String keywords){
 		keywords = StringHelper.groomKeywords(keywords)
-		return keywords ? googleMaps.address(keywords) : null
+		return keywords ? googleMaps.geocode(keywords) : null
 	}
 
 	/**
@@ -232,7 +232,7 @@ public class ReconciliationService{
 	 * @return JSON String of google place detail
 	 */
 	public Map<String, Object> queryPlaceDetail(String placeId){
-		return placeId ? googleMaps.detail(placeId) : null
+		return placeId ? googleMaps.placeDetail(placeId) : null
 	}
 
 	/**

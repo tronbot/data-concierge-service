@@ -12,10 +12,11 @@ import feign.Request
  */
 
 @Configuration
-public class GooglePlacesFeignConfiguration{
+public class GoogleApiFeignConfiguration{
 	@Bean
-	public Request.Options options(@Value('${google.places.api.timeout}') Integer timeout) {
-		return new Request.Options(timeout, timeout);
+	public Request.Options options(@Value('${google.api.connectTimeoutMillis}') Integer connectTimeoutMillis, 
+								   @Value('${google.api.readTimeoutMillis}') Integer readTimeoutMillis) {
+		return new Request.Options(connectTimeoutMillis, readTimeoutMillis);
 	}
 }
 
