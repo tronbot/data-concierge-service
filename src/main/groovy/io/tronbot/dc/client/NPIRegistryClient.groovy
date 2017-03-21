@@ -15,8 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable
 @FeignClient(name = 'NPIRegistry', url = '${npiregistry.api.url}')
 public interface NPIRegistryClient {
 	@Cacheable(value = 'persistableCache', keyGenerator = 'feignCacheKeyGenerator')
-	@GetMapping(value = 'api?number={number}&enumeration_type={enumeration_type}&taxonomy_description={taxonomy_description}&first_name={first_name}&last_name={last_name}&organization_name={organization_name}&address_purpose={address_purpose}&city={city}&state={state}&postal_code={postal_code}&country_code={country_code}&limit={limit}&skip={skip}&pretty={pretty}'
-	, produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping('api?number={number}&enumeration_type={enumeration_type}&taxonomy_description={taxonomy_description}&first_name={first_name}&last_name={last_name}&organization_name={organization_name}&address_purpose={address_purpose}&city={city}&state={state}&postal_code={postal_code}&country_code={country_code}&limit={limit}&skip={skip}&pretty={pretty}')
 	Map<String, Object> query(@PathVariable('number') String number,
 			@PathVariable('enumeration_type') String enumerationType,
 			@PathVariable('taxonomy_description') String taxonomyDescription,
