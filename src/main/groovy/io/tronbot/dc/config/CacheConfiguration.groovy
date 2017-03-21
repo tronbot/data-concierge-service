@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.cloud.client.ServiceInstance
 import org.springframework.cloud.client.discovery.DiscoveryClient
-import org.springframework.cloud.client.serviceregistry.Registration
+//import org.springframework.cloud.client.serviceregistry.Registration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.env.Environment
@@ -27,13 +27,13 @@ import io.tronbot.dc.service.RequestHistoryStore
 @EnableCaching
 public class CacheConfiguration {
 	private static final Logger log = LoggerFactory.getLogger(DiscoveryClient.class);
-	
+
 	@Autowired
 	private Environment env
 	@Autowired
 	private DiscoveryClient discoveryClient
-	@Autowired
-	private Registration registration
+	//	@Autowired
+	//	private Registration registration
 	@Autowired
 	private RequestHistoryStore store
 	//	@Autowired
@@ -48,7 +48,7 @@ public class CacheConfiguration {
 	private int writeDelay
 	@Value('${data-concierge.cache.hazelcast.time-to-live-seconds}')
 	private int timeToLiveSecs
-	
+
 
 
 	@Bean
@@ -58,7 +58,8 @@ public class CacheConfiguration {
 		Config config = new Config()
 		// The serviceId is by default the application's name, see Spring Boot's
 		// eureka.instance.appname property
-		String serviceId = registration.getServiceId()
+		//FIXME THIS IS FOR Spring cloud 2		String serviceId = registration.getServiceId()
+		String serviceId = discoveryClient.getLocalServiceInstance().getServiceId()
 		log.debug("Configuring Hazelcast clustering for instanceId: ${serviceId}")
 		// Network Config
 		config.getNetworkConfig().setPort(port)

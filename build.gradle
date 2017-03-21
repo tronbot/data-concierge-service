@@ -22,18 +22,18 @@ jar {
 }
 
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+eclipse {
+	classpath {
+		 containers.remove('org.eclipse.jdt.launching.JRE_CONTAINER')
+		 containers 'org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8'
+	}
+}
 
 repositories {
 	mavenCentral()
-    jcenter()
-	maven { url "https://repo.spring.io/snapshot" }
-	maven { url "https://repo.spring.io/milestone" }
-	maven { url "https://repository.jboss.org/nexus/content/repositories/releases" }
-    maven { url "https://oss.sonatype.org/content/repositories/releases" }
-    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
-    maven { url "http://repo.maven.apache.org/maven2" }
 }
-
 
 dependencies {
 	//compile project(":data-concierge-commons")
