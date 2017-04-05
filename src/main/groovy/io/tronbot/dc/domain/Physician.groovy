@@ -24,7 +24,7 @@ import io.tronbot.dc.domain.Place.Type
  */
 @Entity
 @Table(name='dc_physician')
-class Physician extends Answer{
+class Physician{
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@JsonIgnore

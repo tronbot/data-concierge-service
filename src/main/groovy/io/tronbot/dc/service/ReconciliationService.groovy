@@ -5,7 +5,7 @@ import org.apache.commons.lang3.StringUtils
 import org.springframework.stereotype.Service
 
 import groovy.util.logging.Log4j
-import io.tronbot.dc.client.GoogleMapsClient
+import io.tronbot.dc.client.GoogleApisClient
 import io.tronbot.dc.client.NPIQuery
 import io.tronbot.dc.client.NPIRegistryClientHelper
 import io.tronbot.dc.domain.Hospital
@@ -24,12 +24,12 @@ import io.tronbot.dc.messaging.Emitter
 @Service
 @Log4j
 public class ReconciliationService{
-	private final GoogleMapsClient googleMaps
+	private final GoogleApisClient googleMaps
 	private final NPIRegistryClientHelper npiRegistry
 	private final JsonHelper json
 	private final Emitter emitter
 
-	ReconciliationService(GoogleMapsClient googleMaps, NPIRegistryClientHelper npiRegistry,JsonHelper json, Emitter emitter){
+	ReconciliationService(GoogleApisClient googleMaps, NPIRegistryClientHelper npiRegistry,JsonHelper json, Emitter emitter){
 		this.googleMaps = googleMaps
 		this.npiRegistry = npiRegistry
 		this.json = json
@@ -37,9 +37,8 @@ public class ReconciliationService{
 	}
 
 
-	
+
 	public Hospital resolveHospital(source, keywords){
-		
 	}
 	/**
 	 * 
@@ -60,7 +59,7 @@ public class ReconciliationService{
 		query.setPostalCode(postalCode)
 		List npis = json.read(npiRegistry.query(query), '$.results')
 		if(!npis){
-			//fall back call for name and state 
+			//fall back call for name and state
 			query.setCity('')
 			query.setPostalCode('')
 			npis = json.read(npiRegistry.query(query), '$.results')
@@ -161,19 +160,19 @@ public class ReconciliationService{
 		}
 		Map<String, Object> hospitalJson = queryPlaces(keywords, Type.hospital)
 		if(!'OK'.equalsIgnoreCase(json.read(hospitalJson, 'status'))){
-			hospitalJson = queryPlaces(keywords.substring(StringUtils.indexOf(keywords, ',')+1), Type.hospital)
-		}
-		List<String> hospitalPids =  json.read(hospitalJson, '$.results[*].place_id')
-		if(hospitalPids){
-			log.info("${hospitalPids.size()} results found for ${keywords}")
-			hospitalPids.each{ pid ->
-				Hospital h = new Hospital()
-				BeanUtils.copyProperties(h, json.from(queryPlaceDetail(pid), new Place(), '$.result'))
-				hospitals.add(h)
-				emitter.saveOrUpdateHospital(h)
-			}
-		}else{
 			log.warn("No hospitals found for : ${keywords}")
+			return hospitals
+		}else{
+			List<String> hospitalPids =  json.read(hospitalJson, '$.results[*].place_id')
+			if(hospitalPids){
+				log.info("${hospitalPids.size()} results found for ${keywords}")
+				hospitalPids.each{ pid ->
+					Hospital h = new Hospital()
+					BeanUtils.copyProperties(h, json.from(queryPlaceDetail(pid), new Place(), '$.result'))
+					hospitals.add(h)
+					emitter.saveOrUpdateHospital(h)
+				}
+			}
 		}
 		return hospitals
 	}

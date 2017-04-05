@@ -25,7 +25,7 @@ import io.tronbot.dc.common.json.JsonPathElement
 @Table(name='dc_place', indexes = [@Index(name = 'IDX_PLACE', columnList = 'placeId')])
 @Inheritance(strategy = InheritanceType.JOINED)
 //@JsonPathElement('$.result')
-class Place extends Answer{
+class Place{
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@JsonIgnore
